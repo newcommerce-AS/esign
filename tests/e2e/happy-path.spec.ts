@@ -35,6 +35,6 @@ test("happy path: create → confirm → 2 signers sign → final pdf available"
   const statusJson = await status.json();
   expect(statusJson.status).toBe("completed");
 
-  const final = await api.get(`/api/v1/documents/${statusJson.document_id ?? body.id}/final`, { headers: { "x-lookup-token": body.sender_lookup_token } });
+  const final = await api.get(`/api/v1/documents/${statusJson.document.id}/final`, { headers: { "x-lookup-token": body.sender_lookup_token } });
   expect(final.ok()).toBeTruthy();
 });
