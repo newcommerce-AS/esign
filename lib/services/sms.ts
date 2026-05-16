@@ -1,4 +1,4 @@
-import { db } from "@/lib/db/client";
+import { db, initDb } from "@/lib/db/client";
 import { signers } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { generateSmsCode, hashSmsCode, verifySmsCode } from "@/lib/sms/code";
@@ -6,6 +6,7 @@ import { sendSms } from "@/lib/sms/twilio-client";
 import { logAudit } from "@/lib/audit/log";
 
 export async function sendSmsCode(signerId: string): Promise<{ ok: true } | { ok: false; reason: string }> {
+  await initDb();
   const [s] = await db.select().from(signers).where(eq(signers.id, signerId));
   if (!s || !s.phone) return { ok: false, reason: "no_phone" };
   const code = generateSmsCode();
@@ -17,6 +18,7 @@ export async function sendSmsCode(signerId: string): Promise<{ ok: true } | { ok
 }
 
 export async function verifyCode(signerId: string, code: string): Promise<{ ok: true } | { ok: false; reason: string }> {
+  await initDb();
   const [s] = await db.select().from(signers).where(eq(signers.id, signerId));
   if (!s || !s.smsCodeHash || !s.smsCodeExpiresAt) return { ok: false, reason: "no_code" };
   if (s.smsCodeExpiresAt.getTime() < Date.now()) return { ok: false, reason: "expired" };

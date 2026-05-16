@@ -1,4 +1,4 @@
-import { db } from "@/lib/db/client";
+import { db, initDb } from "@/lib/db/client";
 import { signers, signingRequests, documents } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { logAudit } from "@/lib/audit/log";
@@ -7,6 +7,7 @@ import { DeclineEmail } from "@/lib/email/templates/decline";
 import { fireWebhook } from "@/lib/webhook/fire";
 
 export async function performDecline(signerId: string, reason: string): Promise<{ ok: boolean }> {
+  await initDb();
   const [s] = await db.select().from(signers).where(eq(signers.id, signerId));
   if (!s) return { ok: false };
   await db.update(signers).set({ status: "declined", declineReason: reason }).where(eq(signers.id, signerId));

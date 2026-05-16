@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db/client";
+import { db, initDb } from "@/lib/db/client";
 import { signingRequests, signers, documents } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { apiError } from "@/lib/http/errors";
@@ -16,6 +16,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   if (!rl.success) return apiError("RATE_LIMITED", "Too many requests", 429);
   const lookup = req.headers.get("x-lookup-token");
   if (!lookup) return apiError("UNAUTHORIZED", "Missing X-Lookup-Token", 401);
+  await initDb();
   const [r] = await db.select().from(signingRequests).where(eq(signingRequests.id, id));
   if (!r) return apiError("NOT_FOUND", "Not found", 404);
   if (!constantTimeStringEq(r.senderLookupToken, lookup)) return apiError("UNAUTHORIZED", "Bad lookup token", 401);

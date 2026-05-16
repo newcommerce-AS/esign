@@ -1,4 +1,4 @@
-import { db } from "@/lib/db/client";
+import { db, initDb } from "@/lib/db/client";
 import { signingRequests, signers, documents } from "@/lib/db/schema";
 import { and, eq } from "drizzle-orm";
 import { finalizeSignedPdf } from "@/lib/pdf/finalize";
@@ -9,6 +9,7 @@ import { CompletionEmail } from "@/lib/email/templates/completion";
 import { fireWebhook } from "@/lib/webhook/fire";
 
 export async function completeIfDone(signingRequestId: string): Promise<boolean> {
+  await initDb();
   const sgs = await db.select().from(signers).where(eq(signers.signingRequestId, signingRequestId));
   if (sgs.some((s) => s.status !== "signed")) return false;
 

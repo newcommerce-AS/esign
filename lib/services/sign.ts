@@ -1,4 +1,4 @@
-import { db } from "@/lib/db/client";
+import { db, initDb } from "@/lib/db/client";
 import { signers, signingRequests } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import { logAudit } from "@/lib/audit/log";
@@ -7,6 +7,7 @@ import { completeIfDone } from "./complete";
 export type SignResult = { ok: true; completed: boolean } | { ok: false; reason: string };
 
 export async function performSign(signerId: string, fullName: string, ip: string, userAgent: string): Promise<SignResult> {
+  await initDb();
   const [s] = await db.select().from(signers).where(eq(signers.id, signerId));
   if (!s) return { ok: false, reason: "not_found" };
   if (s.status === "signed") return { ok: false, reason: "already_signed" };

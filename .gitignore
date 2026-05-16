@@ -40,3 +40,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Local dev mode artifacts
+.dev-db
+.dev-blobs
+.dev-mail

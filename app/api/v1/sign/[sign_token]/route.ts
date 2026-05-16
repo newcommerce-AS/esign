@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db/client";
+import { db, initDb } from "@/lib/db/client";
 import { signers, documents, signingRequests } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { signActionSchema } from "@/lib/validation";
@@ -16,6 +16,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ sign
   const ip = clientIp(req);
   const rl = await rateLimit(`api:ip:${ip}`, { limit: 60, windowSec: 60 });
   if (!rl.success) return apiError("RATE_LIMITED", "Too many requests", 429);
+  await initDb();
   const [s] = await db.select().from(signers).where(eq(signers.signToken, sign_token));
   if (!s) return apiError("NOT_FOUND", "Invalid sign token", 404);
   const [req2] = await db.select().from(signingRequests).where(eq(signingRequests.id, s.signingRequestId));
@@ -40,6 +41,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ sig
   const ip = clientIp(req);
   const rl = await rateLimit(`api:ip:${ip}`, { limit: 60, windowSec: 60 });
   if (!rl.success) return apiError("RATE_LIMITED", "Too many requests", 429);
+  await initDb();
   const [s] = await db.select().from(signers).where(eq(signers.signToken, sign_token));
   if (!s) return apiError("NOT_FOUND", "Invalid sign token", 404);
   let body: unknown;

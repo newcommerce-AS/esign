@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db/client";
+import { db, initDb } from "@/lib/db/client";
 import { signers } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { declineSchema } from "@/lib/validation";
@@ -15,6 +15,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ sig
   const ip = clientIp(req);
   const rl = await rateLimit(`api:ip:${ip}`, { limit: 60, windowSec: 60 });
   if (!rl.success) return apiError("RATE_LIMITED", "Too many requests", 429);
+  await initDb();
   const [s] = await db.select().from(signers).where(eq(signers.signToken, sign_token));
   if (!s) return apiError("NOT_FOUND", "Invalid sign token", 404);
   let body: unknown;

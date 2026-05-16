@@ -1,10 +1,11 @@
-import { db } from "@/lib/db/client";
+import { db, initDb } from "@/lib/db/client";
 import { signingRequests } from "@/lib/db/schema";
 import { and, eq, lt } from "drizzle-orm";
 import { logAudit } from "@/lib/audit/log";
 import { fireWebhook } from "@/lib/webhook/fire";
 
 export async function expireDueRequests(now = new Date()): Promise<number> {
+  await initDb();
   const due = await db.select().from(signingRequests)
     .where(and(eq(signingRequests.status, "active"), lt(signingRequests.expiresAt, now)));
   for (const r of due) {

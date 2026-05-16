@@ -1,4 +1,4 @@
-import { db } from "@/lib/db/client";
+import { db, initDb } from "@/lib/db/client";
 import { signingRequests, documents, signers } from "@/lib/db/schema";
 import { newToken, hashToken } from "@/lib/tokens";
 import { sha256Hex } from "@/lib/hash";
@@ -21,6 +21,7 @@ export interface CreateSigningRequestResult {
 }
 
 export async function createSigningRequest(input: CreateSigningRequestInput, senderIp: string, baseUrl: string): Promise<CreateSigningRequestResult> {
+  await initDb();
   const originalBuf = Buffer.from(input.document.content_base64, "base64");
   let renderedPdf: Buffer;
   if (input.document.format === "pdf") renderedPdf = originalBuf;

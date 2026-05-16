@@ -1,4 +1,4 @@
-import { db } from "@/lib/db/client";
+import { db, initDb } from "@/lib/db/client";
 import { signingRequests, signers, documents } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { logAudit } from "@/lib/audit/log";
@@ -10,6 +10,7 @@ export type ConfirmResult =
   | { ok: false; reason: "not_found" | "already_confirmed" | "invalid_state" };
 
 export async function confirmSender(token: string, baseUrl: string): Promise<ConfirmResult> {
+  await initDb();
   const [req] = await db.select().from(signingRequests).where(eq(signingRequests.senderConfirmToken, token));
   if (!req) return { ok: false, reason: "not_found" };
   if (req.senderConfirmedAt) return { ok: false, reason: "already_confirmed" };

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db/client";
+import { db, initDb } from "@/lib/db/client";
 import { documents, signingRequests, signers } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { apiError } from "@/lib/http/errors";
@@ -16,6 +16,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   if (!rl.success) return apiError("RATE_LIMITED", "Too many requests", 429);
   const lookup = req.headers.get("x-lookup-token");
   const sign = req.headers.get("x-sign-token");
+  await initDb();
   const [d] = await db.select().from(documents).where(eq(documents.id, id));
   if (!d || !d.finalSignedPdfBlobUrl) return apiError("NOT_FOUND", "Final PDF not available", 404);
   const [r] = await db.select().from(signingRequests).where(eq(signingRequests.id, d.signingRequestId));

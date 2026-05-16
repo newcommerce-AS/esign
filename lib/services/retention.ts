@@ -1,9 +1,10 @@
-import { db } from "@/lib/db/client";
+import { db, initDb } from "@/lib/db/client";
 import { signingRequests, documents } from "@/lib/db/schema";
 import { eq, lt, or, and, inArray } from "drizzle-orm";
 import { deleteBlob } from "@/lib/storage/blob";
 
 export async function sweepRetention(now = new Date()): Promise<number> {
+  await initDb();
   const cutoff = new Date(now.getTime() - 90 * 86400_000);
   const stale = await db.select().from(signingRequests).where(or(
     and(eq(signingRequests.status, "completed"), lt(signingRequests.completedAt, cutoff)),
