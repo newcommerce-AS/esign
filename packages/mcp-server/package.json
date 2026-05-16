@@ -1,0 +1,24 @@
+{
+  "name": "@newcommerce/esign-mcp",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "esign-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p .",
+    "dev": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "tsx": "^4.22.0",
+    "typescript": "^5.9.3"
+  }
+}
