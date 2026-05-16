@@ -2,17 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db/client";
 import { signingRequests, signers, documents } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { timingSafeEqual } from "node:crypto";
 import { apiError } from "@/lib/http/errors";
+import { constantTimeStringEq } from "@/lib/http/timing-safe";
 
 export const runtime = "nodejs";
-
-function constantTimeStringEq(a: string, b: string): boolean {
-  const ab = Buffer.from(a);
-  const bb = Buffer.from(b);
-  if (ab.length !== bb.length) return false;
-  return timingSafeEqual(ab, bb);
-}
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
