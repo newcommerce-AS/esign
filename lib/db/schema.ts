@@ -59,3 +59,12 @@ export const auditEvents = pgTable("audit_events", {
   occurredAt: timestamp("occurred_at", { withTimezone: true }).defaultNow().notNull(),
   ip: inet("ip"),
 }, (t) => ({ srIdx: index("ae_sr_idx").on(t.signingRequestId), typeIdx: index("ae_type_idx").on(t.eventType) }));
+
+export type SigningRequest = typeof signingRequests.$inferSelect;
+export type NewSigningRequest = typeof signingRequests.$inferInsert;
+export type Document = typeof documents.$inferSelect;
+export type NewDocument = typeof documents.$inferInsert;
+export type Signer = typeof signers.$inferSelect;
+export type NewSigner = typeof signers.$inferInsert;
+export type AuditEvent = typeof auditEvents.$inferSelect;
+export type NewAuditEvent = typeof auditEvents.$inferInsert;
