@@ -160,7 +160,7 @@ export function SignerView({ signToken }: { signToken: string }) {
             <Icon name="doc" size={15} style={{ color: "var(--fg-muted)", flexShrink: 0 }} />
             <span style={{ fontSize: 13.5, fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{data?.document.filename}</span>
             {/* E2E test selector: must contain "har sendt deg" */}
-            <span style={{ fontSize: 13, color: "var(--fg-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "none md:block" }}>
+            <span className="hidden md:inline" style={{ fontSize: 13, color: "var(--fg-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               fra {data?.sender.email} har sendt deg dette dokumentet
             </span>
           </span>
