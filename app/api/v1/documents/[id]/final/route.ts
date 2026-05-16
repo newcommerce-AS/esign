@@ -4,11 +4,16 @@ import { documents, signingRequests, signers } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { apiError } from "@/lib/http/errors";
 import { constantTimeStringEq } from "@/lib/http/timing-safe";
+import { clientIp } from "@/lib/http/ip";
+import { rateLimit } from "@/lib/rate-limit/upstash";
 
 export const runtime = "nodejs";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const ip = clientIp(req);
+  const rl = await rateLimit(`api:ip:${ip}`, { limit: 60, windowSec: 60 });
+  if (!rl.success) return apiError("RATE_LIMITED", "Too many requests", 429);
   const lookup = req.headers.get("x-lookup-token");
   const sign = req.headers.get("x-sign-token");
   const [d] = await db.select().from(documents).where(eq(documents.id, id));
