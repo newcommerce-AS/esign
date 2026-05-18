@@ -71,7 +71,7 @@ export default function Home() {
             Last opp en PDF, Markdown eller tekstfil, legg til signanter, send. Eller be agenten din om <em className="not-italic text-fg">«Send dette dokumentet til signering til Ola og Nora»</em>.
           </p>
           <div className="flex flex-wrap gap-3 items-center mb-8">
-            <a href="#start" className="inline-flex items-center gap-2 h-12 px-5 bg-accent font-medium text-sm rounded-sm es-btn-primary transition-colors" style={{ borderRadius: "var(--r-sm)", color: "var(--fg-on-accent)" }}>
+            <a href="#start" className="inline-flex items-center gap-2 h-12 px-5 bg-accent font-medium text-sm rounded-sm es-btn-primary transition-colors" style={{ borderRadius: "var(--r-sm)", color: "#fff" }}>
               Start signering <Icon name="arrow" size={16} />
             </a>
           </div>
