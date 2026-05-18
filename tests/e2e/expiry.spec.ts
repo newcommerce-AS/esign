@@ -17,6 +17,7 @@ test("cron expire flips active → expired for past-due requests", async ({ base
   await db.update(signingRequests).set({ expiresAt: new Date(Date.now() - 1000), status: "active" }).where(eq(signingRequests.id, body.id));
   const cron = await api.get("/api/internal/cron/expire", { headers: { authorization: `Bearer ${process.env.CRON_SECRET}` } });
   expect(cron.ok()).toBeTruthy();
+  // After expire cron, the row is deleted inline — expect 404.
   const status = await api.get(`/api/v1/signing-requests/${body.id}`, { headers: { "x-lookup-token": body.sender_lookup_token } });
-  expect((await status.json()).status).toBe("expired");
+  expect(status.status()).toBe(404);
 });

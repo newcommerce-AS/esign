@@ -1,7 +1,7 @@
 import { test, expect, request } from "@playwright/test";
 import { getSignTokensForRequest } from "./helpers";
 
-test("happy path: create → confirm → 2 signers sign → final pdf available", async ({ page, baseURL }) => {
+test("happy path: create → confirm → 2 signers sign → row deleted (404)", async ({ page, baseURL }) => {
   const api = await request.newContext({ baseURL });
   const create = await api.post("/api/v1/signing-requests", {
     data: {
@@ -31,10 +31,9 @@ test("happy path: create → confirm → 2 signers sign → final pdf available"
     await expect(page.getByText("dokumentet er signert", { exact: false })).toBeVisible({ timeout: 30_000 });
   }
 
-  const status = await api.get(`/api/v1/signing-requests/${body.id}`, { headers: { "x-lookup-token": body.sender_lookup_token } });
-  const statusJson = await status.json();
-  expect(statusJson.status).toBe("completed");
-
-  const final = await api.get(`/api/v1/documents/${statusJson.document.id}/final`, { headers: { "x-lookup-token": body.sender_lookup_token } });
-  expect(final.ok()).toBeTruthy();
+  // After the last signer signs, completeIfDone fires synchronously and deletes the row.
+  // The last sign POST response should carry completed: true.
+  // Subsequent GET on the signing request should return 404 (row deleted).
+  const statusAfter = await api.get(`/api/v1/signing-requests/${body.id}`, { headers: { "x-lookup-token": body.sender_lookup_token } });
+  expect(statusAfter.status()).toBe(404);
 });
