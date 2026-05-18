@@ -19,6 +19,9 @@ export async function POST(req: NextRequest) {
     const result = await createSigningRequest(parsed.data, ip, process.env.APP_BASE_URL!);
     return NextResponse.json(result, { status: 201 });
   } catch (e) {
+    if (e instanceof Error && e.message === "SMS_NOT_CONFIGURED") {
+      return apiError("SMS_NOT_CONFIGURED", "SMS-verifisering er ikke konfigurert på denne instansen. Fjern telefonnummer fra signantene og prøv igjen.", 400);
+    }
     console.error("create-request failed", e);
     return apiError("INTERNAL_ERROR", "Failed to create signing request", 500);
   }

@@ -21,6 +21,12 @@ export interface CreateSigningRequestResult {
 }
 
 export async function createSigningRequest(input: CreateSigningRequestInput, senderIp: string, baseUrl: string): Promise<CreateSigningRequestResult> {
+  const isProd = process.env.NODE_ENV === "production";
+  const smsConfigured = !!(process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN && process.env.TWILIO_FROM_NUMBER);
+  const hasSignerWithPhone = input.signers.some((s) => s.phone);
+  if (isProd && hasSignerWithPhone && !smsConfigured) {
+    throw new Error("SMS_NOT_CONFIGURED");
+  }
   await initDb();
   const originalBuf = Buffer.from(input.document.content_base64, "base64");
   let renderedPdf: Buffer;

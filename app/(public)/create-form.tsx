@@ -9,7 +9,7 @@ import { MonoChip } from "@/components/ui/mono-chip";
 import { Icon } from "@/components/ui/icons";
 
 interface Signer { name: string; email: string; phone: string; }
-type FormState = "idle" | "submitting" | "success" | "rate_limited" | "api_error" | "validation_error";
+type FormState = "idle" | "submitting" | "success" | "rate_limited" | "api_error" | "validation_error" | "sms_not_configured";
 
 interface SuccessData {
   confirm_url: string;
@@ -48,6 +48,10 @@ export function CreateForm() {
       if (res.status === 429) { setFormState("rate_limited"); return; }
       if (!res.ok) {
         const j = await res.json().catch(() => ({}));
+        if (j?.error?.code === "SMS_NOT_CONFIGURED") {
+          setFormState("sms_not_configured");
+          return;
+        }
         setErrorMsg(j?.error?.message ?? "Feil");
         setFormState("api_error");
         return;
@@ -129,6 +133,11 @@ export function CreateForm() {
       {formState === "rate_limited" && (
         <Banner tone="error" title="For mange forsøk" style={{ marginBottom: 22 }}>
           Maks 5 oppdrag per time per IP. Prøv igjen om en stund.
+        </Banner>
+      )}
+      {formState === "sms_not_configured" && (
+        <Banner tone="warn" title="SMS-verifisering er ikke aktivt enda" style={{ marginBottom: 22 }}>
+          Fjern telefonnummer fra signantene for å fortsette.
         </Banner>
       )}
       {formState === "api_error" && (
