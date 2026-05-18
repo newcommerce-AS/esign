@@ -51,7 +51,7 @@ The landing has two jobs: (a) explain what esign is and how it works so a first-
 
 **Sections, in order:**
 
-1. **Hero** — headline, sub-headline, primary call-to-action that scrolls/jumps to the form. Trust line below (e.g., "Standard Electronic Signature under eIDAS · SHA-256 audit trail · 90-dagers oppbevaring").
+1. **Hero** — headline, sub-headline, primary call-to-action that scrolls/jumps to the form. Trust line below (e.g., "Standard Electronic Signature under eIDAS · SHA-256 audit trail · Slettes umiddelbart etter signering").
 2. **How it works** — three numbered steps with brief explainer text per step:
    1. Last opp dokumentet og legg til signanter
    2. Bekreft via e-post (anti-misbruk-sjekk)
@@ -157,7 +157,7 @@ The sender's dashboard for a single signing request. Useful for senders running 
 
 **Actions row:**
 - If status === active: "Avbryt oppdraget" (destructive, requires confirm)
-- If status === completed: "Last ned signert PDF" (primary)
+- If status === completed (row deleted after completion): render "Ferdigstilt og slettet" state (see §4.5)
 - If status === any: "Kopier sender_lookup_token" (for agent use)
 
 **States:**
@@ -165,10 +165,10 @@ The sender's dashboard for a single signing request. Useful for senders running 
 - **Loaded — awaiting confirm**
 - **Loaded — active, 0 signed**
 - **Loaded — active, partial signed** (e.g., 1 of 3)
-- **Loaded — completed** (with download button)
+- **404 / Ferdigstilt og slettet** — row is deleted on completion; 404 is the canonical "completed" signal. Render: "Ferdigstilt og slettet. Dette signeringsoppdraget er ferdig — den signerte PDFen er sendt til alle parter på e-post. Vi har slettet alle data fra våre servere."
 - **Loaded — cancelled** (decline reason visible)
 - **Loaded — expired**
-- **Error — not found / unauthorized**
+- **Error — unauthorized**
 
 ### 4.6 404 / generic error page
 
@@ -180,7 +180,7 @@ Four transactional templates already exist in code; they need design polish (not
 
 1. **Sender confirmation** — subject "Bekreft signeringsoppdrag". Body explains: "Du har bedt om signering hos: <names>. Klikk knappen under for å sende invitasjoner ut."
 2. **Signer invitation** — subject "Du har et dokument til signering: <filename>". Body: "Hei <name>, <sender_email> har sendt deg <filename> til elektronisk signering. Klikk for å åpne og signere. Lenken utløper <expires>."
-3. **Completion** — subject "Signert: <filename>". Body: "Dokumentet er signert av alle parter: <names>. Signert PDF ligger som vedlegg. Vi sletter dokumentet fra våre servere om 90 dager — behold denne kopien."
+3. **Completion** — subject "Signert: <filename>". Body: "Dokumentet er signert av alle parter: <names>. Signert PDF ligger som vedlegg. Vi har slettet dokumentet fra våre servere. Vedlegget er originalen — behold denne kopien."
 4. **Decline notification** — subject "Signeringsoppdrag avbrutt: <filename>". Body: "<decliner_name> har avvist å signere. Begrunnelse: <reason>. Oppdraget er kansellert."
 
 **Design constraints for emails:** plain, scannable, single-column, max 600px wide. Primary CTA button styled black with white text. Inter-friendly fonts. No images that need hosting. Footer line: "esign · gratis elektronisk signering · esign.newcommerce.no".
@@ -230,7 +230,7 @@ Use these literally. Do not paraphrase, do not translate to English, do not "imp
 - "Takk! Dokumentet er signert. Du får signert PDF på e-post når alle har signert."
 - "Du har avvist å signere. Avsender er varslet."
 - "Dokumentet er signert"
-- "Vi sletter dokumentet om 90 dager — behold denne kopien."
+- "Vi har slettet dokumentet fra våre servere. Vedlegget er originalen — behold denne kopien."
 - "Lenken utløper {dato}"
 - "SMS-verifisering kreves for denne signaturen."
 - "Send SMS-kode"
