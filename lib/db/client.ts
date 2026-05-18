@@ -46,9 +46,18 @@ export async function initDb(): Promise<AnyDb> {
   return _db;
 }
 
+function getDbSync(): AnyDb {
+  if (_db) return _db;
+  const url = process.env.DATABASE_URL;
+  if (url) {
+    _db = drizzleNeon(neon(url));
+    return _db;
+  }
+  throw new Error("DB not initialized. In local dev with PGlite, call await initDb() first (instrumentation.ts does this).");
+}
+
 export const db = new Proxy({} as AnyDb, {
   get(_target, prop, receiver) {
-    if (!_db) throw new Error("DB not initialized. Call await initDb() before accessing db.");
-    return Reflect.get(_db as unknown as object, prop, receiver);
+    return Reflect.get(getDbSync() as unknown as object, prop, receiver);
   },
 });
