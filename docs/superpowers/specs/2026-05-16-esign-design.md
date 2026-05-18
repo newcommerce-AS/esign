@@ -54,11 +54,10 @@ Bevisverdi is maximized via the audit trail (see §7).
 
 | Service | Purpose |
 |---|---|
-| Neon Postgres | All persistent state |
+| Neon Postgres | All persistent state + sliding-window rate limiting |
 | Vercel Blob | Original + final PDF storage |
 | Resend | Outbound email (sender confirmation, signer invitation, final receipt with signed PDF attached) |
 | Twilio | SMS verification, only when phone is provided |
-| Upstash Redis | Sliding-window rate limiting per IP |
 
 ### Anti-abuse: sender confirmation gate
 
@@ -66,7 +65,7 @@ When an anonymous sender creates a request, the request is created in status `aw
 
 The confirmation URL is also returned directly in the API response. This is by design: the URL is only useful if delivered to a real recipient, and agents need to be able to show the URL to the user ("klikk her for å bekrefte"). The confirmation URL is single-use.
 
-Rate limit: 5 signing requests per IP per hour (anonymous). Sliding window via Upstash.
+Rate limit: 5 signing requests per IP per hour (anonymous). Postgres-backed sliding window (rate_limit_hits table).
 
 ## 5. Data model (Postgres, Drizzle ORM)
 
@@ -357,7 +356,7 @@ The MCP server stores no state. Agents are responsible for surfacing `confirm_ur
   sms/
     twilio-client.ts
   rate-limit/
-    upstash.ts
+    db.ts
   audit/
     log.ts
   tokens.ts                                  # opaque token generation
@@ -387,8 +386,6 @@ RESEND_FROM_ADDRESS=no-reply@esign.newcommerce.no
 TWILIO_ACCOUNT_SID
 TWILIO_AUTH_TOKEN
 TWILIO_FROM_NUMBER
-UPSTASH_REDIS_REST_URL
-UPSTASH_REDIS_REST_TOKEN
 APP_BASE_URL=https://esign.newcommerce.no
 APP_VERSION                                 # injected at build time
 CRON_SECRET                                 # to authorize /api/internal/cron/*
@@ -411,6 +408,8 @@ Cron endpoints check `Authorization: Bearer <CRON_SECRET>`.
 - `POST /api/v1/signing-requests` — 5 / hour / IP.
 - `POST /api/v1/sign/<token>/sms/send` — 5 / hour / signer.
 - All other endpoints — 60 / minute / IP soft limit.
+
+Implementation: Postgres-backed sliding window via `rate_limit_hits` table. Non-atomic count-then-insert; acceptable for this use case. Hourly cleanup runs in the expire cron job.
 
 ### Logging / observability
 
@@ -451,6 +450,6 @@ Resend test domain + Twilio magic numbers used in E2E — no production sends.
 - MCP server published to npm as `@newcommerce/esign-mcp` with a README showing Claude Desktop config snippet.
 - Happy-path E2E: last sign POST returns `completed: true`, subsequent GET returns 404, dev-mail has PDF attachment with size > 0.
 - README documents: how to deploy your own copy, how to use the public hosted instance via API, how to install the MCP server.
-- `esign.newcommerce.no` live, with DKIM/SPF/DMARC for Resend domain configured, Twilio number provisioned, Upstash + Neon connected.
+- `esign.newcommerce.no` live, with DKIM/SPF/DMARC for Resend domain configured, Twilio number provisioned, Neon connected.
 - A real signed PDF (sender = Ole, signer = Henrik) exists end-to-end as the acceptance demo.
 - Data retention: no server-side storage after completion/decline/expiry. Email is the canonical delivery and archival channel.
