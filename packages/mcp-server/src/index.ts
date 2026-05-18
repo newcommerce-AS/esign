@@ -5,9 +5,8 @@ import { ListToolsRequestSchema, CallToolRequestSchema } from "@modelcontextprot
 import { createSigningRequestTool } from "./tools/create-signing-request.js";
 import { getStatusTool } from "./tools/get-signing-status.js";
 import { cancelTool } from "./tools/cancel-signing-request.js";
-import { downloadTool } from "./tools/download-signed-document.js";
 
-const tools = [createSigningRequestTool, getStatusTool, cancelTool, downloadTool];
+const tools = [createSigningRequestTool, getStatusTool, cancelTool];
 
 const server = new Server({ name: "esign-mcp", version: "0.1.0" }, { capabilities: { tools: {} } });
 

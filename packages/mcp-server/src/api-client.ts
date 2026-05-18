@@ -18,10 +18,4 @@ export const api = {
   create: (b: CreateInput) => request<unknown>("/signing-requests", { method: "POST", body: JSON.stringify(b) }),
   status: (id: string, token: string) => request<unknown>(`/signing-requests/${id}`, { headers: { "x-lookup-token": token } }),
   cancel: (id: string, token: string) => request<unknown>(`/signing-requests/${id}/cancel`, { method: "POST", headers: { "x-lookup-token": token } }),
-  downloadFinal: async (documentId: string, token: string) => {
-    const res = await fetch(`${BASE}/documents/${documentId}/final`, { headers: { "x-lookup-token": token } });
-    if (!res.ok) throw new Error(`${res.status}: download failed`);
-    const buf = await res.arrayBuffer();
-    return Buffer.from(buf).toString("base64");
-  },
 };

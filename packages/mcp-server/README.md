@@ -31,6 +31,7 @@ npm install -g @newcommerce/esign-mcp
 - `create_signing_request` — kick off a new signing flow.
 - `get_signing_status` — see progress (needs sender_lookup_token).
 - `cancel_signing_request` — cancel before completion.
-- `download_signed_document` — fetch the final signed PDF when done.
 
-The flow: agent calls `create_signing_request` → user receives a confirmation email → user clicks the `confirm_url` (also returned in the tool response) → signers receive invitations → when all signers sign, the final PDF is emailed to everyone.
+The signed PDF is delivered only by email. To process it from an AI agent, use a Gmail/IMAP MCP server to fetch the attachment from the recipient's inbox.
+
+The flow: agent calls `create_signing_request` → user receives a confirmation email → user clicks the `confirm_url` (also returned in the tool response) → signers receive invitations → when all signers sign, the final PDF is emailed to everyone and all data is immediately deleted from our servers.
