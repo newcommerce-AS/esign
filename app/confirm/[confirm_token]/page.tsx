@@ -40,9 +40,14 @@ export default async function ConfirmPage({
               <p style={{ fontSize: 15, color: "var(--fg-muted)", lineHeight: 1.6, margin: "0 0 28px" }}>
                 Signantene har nå mottatt invitasjonen sin på e-post. Vi gir deg beskjed når alle har signert.
               </p>
-              <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 8, height: 40, padding: "0 16px", background: "var(--accent)", color: "#fff", borderRadius: "var(--r-sm)", fontSize: 14, fontWeight: 500, textDecoration: "none" }}>
-                Tilbake til forsiden <Icon name="arrow" size={16} />
-              </Link>
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                <Link href={`/status/${result.senderLookupToken}?id=${result.signingRequestId}`} className="es-btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: 8, height: 40, padding: "0 16px", background: "var(--color-accent)", color: "#fff", borderRadius: "var(--r-sm)", fontSize: 14, fontWeight: 500, textDecoration: "none" }}>
+                  Se status for oppdraget <Icon name="arrow" size={16} />
+                </Link>
+                <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 8, height: 40, padding: "0 16px", background: "var(--bg-mute)", color: "var(--fg)", borderRadius: "var(--r-sm)", fontSize: 14, fontWeight: 500, textDecoration: "none", border: "1px solid var(--border-strong)" }}>
+                  Til forsiden
+                </Link>
+              </div>
             </>
           ) : result.reason === "already_confirmed" ? (
             <>
@@ -51,9 +56,14 @@ export default async function ConfirmPage({
               <p style={{ fontSize: 15, color: "var(--fg-muted)", lineHeight: 1.6, margin: "0 0 28px" }}>
                 Dette oppdraget er allerede aktivt — invitasjonene er sendt og signantene kan signere.
               </p>
-              <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 8, height: 40, padding: "0 16px", background: "var(--accent)", color: "#fff", borderRadius: "var(--r-sm)", fontSize: 14, fontWeight: 500, textDecoration: "none" }}>
-                Se forsiden <Icon name="arrow" size={16} />
-              </Link>
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                <Link href={`/status/${result.senderLookupToken}?id=${result.signingRequestId}`} className="es-btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: 8, height: 40, padding: "0 16px", background: "var(--color-accent)", color: "#fff", borderRadius: "var(--r-sm)", fontSize: 14, fontWeight: 500, textDecoration: "none" }}>
+                  Se status for oppdraget <Icon name="arrow" size={16} />
+                </Link>
+                <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 8, height: 40, padding: "0 16px", background: "var(--bg-mute)", color: "var(--fg)", borderRadius: "var(--r-sm)", fontSize: 14, fontWeight: 500, textDecoration: "none", border: "1px solid var(--border-strong)" }}>
+                  Til forsiden
+                </Link>
+              </div>
             </>
           ) : result.reason === "not_found" ? (
             <>
