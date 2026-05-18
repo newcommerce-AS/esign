@@ -37,10 +37,7 @@ Visit http://localhost:3000, create a signing request with your own email as the
 
 ## Deployment
 
-1. Connect this repo to Vercel; set env vars from `.env.example`.
-2. Provision: Neon Postgres, Resend (verify `esign.newcommerce.no` domain with DKIM/SPF/DMARC), Twilio number, Upstash Redis.
-3. `vercel.json` configures hourly expire + daily retention cron.
-4. Publish the MCP server: `pnpm -F @newcommerce/esign-mcp build && pnpm -F @newcommerce/esign-mcp publish --access public`.
+See [PRODUCTION.md](PRODUCTION.md) for the full free-tier production deployment guide.
 
 ## Spec
 
