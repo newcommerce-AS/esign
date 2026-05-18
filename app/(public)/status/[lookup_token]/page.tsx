@@ -13,7 +13,7 @@ interface RequestData {
   id: string; status: string; created_at: string; expires_at: string;
   sender_email: string; sender_confirmed_at: string | null;
   completed_at: string | null; cancelled_at: string | null;
-  document: { id: string; filename: string; sha256: string; final_available: boolean } | null;
+  document: { id: string; filename: string; sha256: string } | null;
   signers: { id: string; name: string; email: string; status: string; signed_at: string | null }[];
 }
 
@@ -35,6 +35,7 @@ export default function StatusPage() {
 
   const [id, setId] = useState(searchParams.get("id") ?? "");
   const [data, setData] = useState<RequestData | null>(null);
+  const [deleted, setDeleted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [cancelling, setCancelling] = useState(false);
@@ -44,7 +45,8 @@ export default function StatusPage() {
     setLoading(true); setError(null);
     const r = await fetch(`/api/v1/signing-requests/${reqId}`, { headers: { "x-lookup-token": lookup_token } });
     setLoading(false);
-    if (r.ok) setData(await r.json());
+    if (r.ok) { setDeleted(false); setData(await r.json()); }
+    else if (r.status === 404) { setDeleted(true); setData(null); }
     else { const j = await r.json(); setError(j.error?.message ?? "Feil"); }
   }
 
@@ -94,11 +96,6 @@ export default function StatusPage() {
                 </div>
               </div>
               <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
-                {completed && data.document?.final_available && (
-                  <Button variant="primary" icon="download" as="a" href={`/api/v1/documents/${data.document.id}/final`}>
-                    Last ned signert PDF
-                  </Button>
-                )}
                 {(data.status === "active" || data.status === "awaiting_sender_confirm") && (
                   <Button variant="destructive" icon="x" loading={cancelling} onClick={cancel}>Avbryt oppdraget</Button>
                 )}
@@ -116,6 +113,11 @@ export default function StatusPage() {
       )}
 
       {/* ── Banners for terminal states ──────────────────────────── */}
+      {deleted && (
+        <div style={{ maxWidth: 1100, margin: "24px auto -8px", padding: "0 32px" }}>
+          <Banner tone="success" title="Ferdigstilt og slettet.">Dette signeringsoppdraget er ferdig — den signerte PDFen er sendt til alle parter på e-post. Vi har slettet alle data fra våre servere.</Banner>
+        </div>
+      )}
       {data?.status === "cancelled" && (
         <div style={{ maxWidth: 1100, margin: "24px auto -8px", padding: "0 32px" }}>
           <Banner tone="warn" title="Oppdraget er kansellert.">Oppdraget ble kansellert {fmtDate(data.cancelled_at)}. Lenken kan ikke lenger brukes.</Banner>
@@ -129,7 +131,7 @@ export default function StatusPage() {
 
       {/* ── Body ────────────────────────────────────────────────── */}
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: "28px 32px 56px" }}>
-        {!data && (
+        {!data && !deleted && (
           <Card padding={28} style={{ background: "#fff", maxWidth: 480 }}>
             <div style={{ display: "flex", gap: 10 }}>
               <div style={{ display: "flex", flexDirection: "column", gap: 6, flex: 1 }}>

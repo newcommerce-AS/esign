@@ -34,9 +34,10 @@ export function SignerView({ signToken }: { signToken: string }) {
 
   useEffect(() => {
     fetch(`/api/v1/sign/${signToken}`)
-      .then((r) => r.json())
-      .then((j) => {
-        if (j.error) setLoadError(j.error.message);
+      .then(async (r) => {
+        const j = await r.json();
+        if (r.status === 404) setLoadError("__deleted__");
+        else if (j.error) setLoadError(j.error.message);
         else { setData(j); setName(j.signer.name); if (j.signer.sms_verified) setSmsVerified(true); }
       });
   }, [signToken]);
@@ -98,6 +99,20 @@ export function SignerView({ signToken }: { signToken: string }) {
     );
   }
 
+  if (loadError === "__deleted__") {
+    return (
+      <div style={{ minHeight: "100vh", background: "var(--bg-mute)", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+        <Card padding={32} style={{ maxWidth: 480, background: "#fff" }}>
+          <div style={{ width: 48, height: 48, borderRadius: 24, background: "var(--bg-mute)", color: "var(--fg-soft)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 18 }}>
+            <Icon name="info" size={22} />
+          </div>
+          <h2 style={{ fontSize: 22, fontWeight: 600, letterSpacing: -0.5, margin: "0 0 8px" }}>Denne lenken er ikke lenger gyldig.</h2>
+          <p style={{ fontSize: 14.5, color: "var(--fg-muted)", lineHeight: 1.6 }}>Oppdraget er enten ferdigstilt, avvist eller utløpt. Hvis du har signert, ligger den endelige PDFen i innboksen din.</p>
+        </Card>
+      </div>
+    );
+  }
+
   if (loadError) {
     return (
       <div style={{ minHeight: "100vh", background: "var(--bg-mute)", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
@@ -122,7 +137,7 @@ export function SignerView({ signToken }: { signToken: string }) {
           </div>
           <h2 style={{ fontSize: 22, fontWeight: 600, letterSpacing: -0.5, margin: "0 0 8px" }}>Takk! Dokumentet er signert.</h2>
           <p style={{ fontSize: 14.5, color: "var(--fg-muted)", lineHeight: 1.6 }}>
-            Du får signert PDF på e-post når alle har signert. Vi sletter dokumentet fra våre servere om 90 dager.
+            Du får signert PDF på e-post når alle har signert. Vi sletter alle data fra våre servere umiddelbart etter fullføring.
           </p>
         </Card>
       </div>

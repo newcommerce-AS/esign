@@ -9,7 +9,7 @@ import { FAQ_JSONLD } from "@/lib/faq";
 const TRUST_BULLETS = [
   "Standard elektronisk signatur (eIDAS)",
   "SHA-256-hash av dokumentet",
-  "90-dagers oppbevaring",
+  "Slettes umiddelbart etter signering",
 ];
 
 const HOW_STEPS = [

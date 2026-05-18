@@ -45,14 +45,8 @@ export function CompletionEmail({
               Signert PDF ligger som vedlegg — siste side er audit-sporet med full hendelseslogg.
             </Text>
 
-            <Section style={{ margin: "18px 0 22px" }}>
-              <Link href="#" style={{ display: "inline-block", padding: "12px 22px", background: "#0a0a0a", color: "#ffffff", textDecoration: "none", borderRadius: 6, fontSize: 14, fontWeight: 500 }}>
-                Last ned signert PDF
-              </Link>
-            </Section>
-
             <Text style={{ ...base, fontSize: 14.5, color: "#0a0a0a", fontWeight: 600, margin: 0 }}>
-              Vi sletter dokumentet om 90 dager — behold denne kopien.
+              Vi har slettet dokumentet fra våre servere. Vedlegget er originalen — behold denne kopien.
             </Text>
 
             <Hr style={{ borderColor: "#e7e5e4", margin: "28px 0 18px" }} />

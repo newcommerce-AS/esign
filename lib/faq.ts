@@ -34,7 +34,7 @@ export const FAQ_PLAIN: FAQItem[] = [
   },
   {
     q: "Hvor lenge oppbevarer dere dokumentet?",
-    a: "Vi sletter dokumentet, signaturdata og audit-sporet fra våre servere etter 90 dager. Den signerte PDF-en sendes til alle parter på e-post når oppdraget er fullført.",
+    a: "Vi lagrer aldri det signerte dokumentet på våre servere. Når alle har signert, sender vi den ferdige PDFen med audit-sertifikat til signantenes e-post, og deretter sletter vi alle data fra oss umiddelbart. Behold e-posten din — den er originalen.",
   },
   {
     q: "Kan AI-agenter opprette signeringsoppdrag på mine vegne?",
