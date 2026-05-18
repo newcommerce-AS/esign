@@ -20,12 +20,12 @@ const HOW_STEPS = [
   },
   {
     n: "02",
-    t: "Bekreft via e-post (anti-misbruk-sjekk)",
+    t: "Bekreft via e-post",
     b: "Vi sender deg en bekreftelses-lenke. Signantene får ingen e-post før du har klikket denne.",
   },
   {
     n: "03",
-    t: "Signanter signerer, signert PDF sendes til alle",
+    t: "Signert PDF sendes når alle har signert",
     b: "Audit-spor med IP, tidsstempel og dokument-hash legges ved som siste side i den signerte PDF-en.",
   },
 ];
@@ -64,18 +64,15 @@ export default function Home() {
       <section className="px-5 md:px-12 pt-16 md:pt-20 pb-14 md:pb-18 border-b border-border">
         <div className="max-w-5xl mx-auto">
           <h1 className="text-4xl md:text-7xl font-semibold tracking-tight leading-tight md:leading-none mb-5 text-balance" style={{ letterSpacing: "-0.04em" }}>
-            Signer dokumenter elektronisk.
-            <span className="text-fg-faint"> Gratis. Uten konto.</span>
+            Gratis elektronisk signering av dokumenter.
+            <span className="text-fg-faint"> For agenter og mennesker.</span>
           </h1>
           <p className="text-base md:text-lg leading-relaxed text-fg-muted max-w-xl mb-8">
-            Last opp en PDF, Markdown eller tekstfil, legg til signanter, send. Vi sender en bekreftelses­mail til deg først — signantene får dokumentet først når du bekrefter.
+            Last opp en PDF, Markdown eller tekstfil, legg til signanter, send. Eller be agenten din om <em className="not-italic text-fg">«Send dette dokumentet til signering til Ola og Nora»</em>.
           </p>
           <div className="flex flex-wrap gap-3 items-center mb-8">
-            <a href="#start" className="inline-flex items-center gap-2 h-12 px-5 bg-accent text-white font-medium text-sm rounded-sm es-btn-primary transition-colors" style={{ borderRadius: "var(--r-sm)" }}>
+            <a href="#start" className="inline-flex items-center gap-2 h-12 px-5 bg-accent font-medium text-sm rounded-sm es-btn-primary transition-colors" style={{ borderRadius: "var(--r-sm)", color: "var(--fg-on-accent)" }}>
               Start signering <Icon name="arrow" size={16} />
-            </a>
-            <a href="#api" className="inline-flex items-center gap-2 h-12 px-5 font-medium text-sm text-fg es-btn-ghost transition-colors" style={{ borderRadius: "var(--r-sm)" }}>
-              <Icon name="code" size={16} /> Les API-docs
             </a>
           </div>
           <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-fg-muted font-mono">
@@ -192,14 +189,7 @@ export default function Home() {
                 <span>Webhooks (signert med HMAC) på <code className="font-mono" style={{ color: "#fafaf9" }}>signed</code>, <code className="font-mono" style={{ color: "#fafaf9" }}>declined</code>, <code className="font-mono" style={{ color: "#fafaf9" }}>completed</code></span>
               </div>
             </div>
-            <div className="flex gap-3 flex-wrap">
-              <a href="#" className="inline-flex items-center gap-2 h-10 px-4 bg-white text-fg-fg font-medium text-sm rounded-sm" style={{ borderRadius: "var(--r-sm)", color: "#0a0a0a" }}>
-                <Icon name="code" size={14} /> Les API-docs <Icon name="arrow" size={14} />
-              </a>
-              <a href="#" className="inline-flex items-center gap-2 h-10 px-4 border font-medium text-sm rounded-sm text-white" style={{ borderRadius: "var(--r-sm)", borderColor: "#3f3935" }}>
-                <Icon name="external" size={14} /> MCP README
-              </a>
-            </div>
+            {/* API-docs + MCP README buttons hidden until docs are ready */}
           </div>
           <div className="flex flex-col gap-3.5">
             <TerminalBlock label="bash · install mcp">

@@ -12,10 +12,6 @@ export function SiteNav() {
         <a href="/#hvordan" className="hover:text-fg transition-colors">Hvordan</a>
         <a href="/#tillit" className="hover:text-fg transition-colors">Tillit</a>
         <a href="/#faq" className="hover:text-fg transition-colors">FAQ</a>
-        <a href="/#api" className="hover:text-fg transition-colors">API &amp; MCP</a>
-        <a href="https://github.com/newcommerce-no/esign" target="_blank" rel="noopener noreferrer" className="hover:text-fg transition-colors flex items-center gap-1">
-          GitHub <Icon name="external" size={12} />
-        </a>
         <Button size="sm" variant="secondary" iconRight="arrow" as="a" href="/#start">
           Start signering
         </Button>
@@ -37,10 +33,6 @@ export function SiteFooter() {
           <span className="text-xs text-fg-faint font-mono">© 2026 newcommerce.no</span>
         </div>
         <nav className="flex gap-5 text-sm text-fg-muted flex-wrap">
-          <a href="#" className="hover:text-fg transition-colors">Spesifikasjon</a>
-          <a href="https://github.com/newcommerce-no/esign" target="_blank" rel="noopener noreferrer" className="hover:text-fg transition-colors flex items-center gap-1">
-            GitHub <Icon name="external" size={11} />
-          </a>
           <a href="mailto:hei@newcommerce.no" className="hover:text-fg transition-colors">hei@newcommerce.no</a>
         </nav>
       </div>
