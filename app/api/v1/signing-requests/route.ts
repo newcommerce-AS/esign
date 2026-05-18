@@ -4,6 +4,7 @@ import { rateLimit } from "@/lib/rate-limit/upstash";
 import { createSigningRequest } from "@/lib/services/create-request";
 import { apiError } from "@/lib/http/errors";
 import { clientIp } from "@/lib/http/ip";
+import { baseUrl } from "@/lib/http/base-url";
 
 export const runtime = "nodejs";
 
@@ -16,7 +17,7 @@ export async function POST(req: NextRequest) {
   const parsed = createSigningRequestSchema.safeParse(body);
   if (!parsed.success) return apiError("VALIDATION_ERROR", "Invalid request body", 400, { issues: parsed.error.issues });
   try {
-    const result = await createSigningRequest(parsed.data, ip, process.env.APP_BASE_URL!);
+    const result = await createSigningRequest(parsed.data, ip, baseUrl());
     return NextResponse.json(result, { status: 201 });
   } catch (e) {
     if (e instanceof Error && e.message === "SMS_NOT_CONFIGURED") {

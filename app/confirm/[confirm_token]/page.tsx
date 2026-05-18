@@ -2,6 +2,7 @@ import { confirmSender } from "@/lib/services/confirm-sender";
 import { Icon } from "@/components/ui/icons";
 import { Card } from "@/components/ui/card";
 import { SiteNav, SiteFooter } from "@/components/ui/nav";
+import { baseUrl } from "@/lib/http/base-url";
 import Link from "next/link";
 
 export const runtime = "nodejs";
@@ -25,7 +26,7 @@ export default async function ConfirmPage({
   params: Promise<{ confirm_token: string }>;
 }) {
   const { confirm_token } = await params;
-  const result = await confirmSender(confirm_token, process.env.APP_BASE_URL!);
+  const result = await confirmSender(confirm_token, baseUrl());
 
   return (
     <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
