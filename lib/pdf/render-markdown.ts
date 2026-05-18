@@ -71,8 +71,10 @@ function renderBlocks(doc: PDFKit.PDFDocument, tokens: Token[]) {
       doc.moveDown(0.5);
     } else if (t.type === "list") {
       const list = t as Tokens.List;
-      for (const item of list.items) {
-        doc.font("Helvetica").fontSize(11).text(list.ordered ? `${(list.start ?? 1) + list.items.indexOf(item)}. ` : "• ", { continued: true });
+      const start = typeof list.start === "number" ? list.start : 1;
+      for (let idx = 0; idx < list.items.length; idx++) {
+        const item = list.items[idx];
+        doc.font("Helvetica").fontSize(11).text(list.ordered ? `${start + idx}. ` : "• ", { continued: true });
         // Item bodies are block-level tokens; render their inline content
         if (item.tokens && item.tokens.length > 0) {
           renderItemBlocks(doc, item.tokens);
