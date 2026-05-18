@@ -26,7 +26,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     id: r.id, status: r.status, created_at: r.createdAt.toISOString(), expires_at: r.expiresAt.toISOString(),
     sender_email: r.senderEmail, sender_confirmed_at: r.senderConfirmedAt?.toISOString() ?? null,
     completed_at: r.completedAt?.toISOString() ?? null, cancelled_at: r.cancelledAt?.toISOString() ?? null,
-    document: doc ? { id: doc.id, filename: doc.originalFilename, sha256: doc.renderedPdfSha256, final_available: !!doc.finalSignedPdfBlobUrl } : null,
+    document: doc ? { id: doc.id, filename: doc.originalFilename, sha256: doc.renderedPdfSha256 } : null,
     signers: sgs.map((s) => ({ id: s.id, name: s.name, email: s.email, status: s.status, signed_at: s.signedAt?.toISOString() ?? null })),
   });
 }
