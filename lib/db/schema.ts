@@ -1,5 +1,13 @@
 import { pgTable, uuid, text, timestamp, inet, jsonb, index } from "drizzle-orm/pg-core";
 
+export const rateLimitHits = pgTable("rate_limit_hits", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  key: text("key").notNull(),
+  occurredAt: timestamp("occurred_at", { withTimezone: true }).defaultNow().notNull(),
+}, (t) => ({
+  keyTimeIdx: index("rl_key_time_idx").on(t.key, t.occurredAt),
+}));
+
 export const signingRequests = pgTable("signing_requests", {
   id: uuid("id").defaultRandom().primaryKey(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
@@ -68,3 +76,4 @@ export type Signer = typeof signers.$inferSelect;
 export type NewSigner = typeof signers.$inferInsert;
 export type AuditEvent = typeof auditEvents.$inferSelect;
 export type NewAuditEvent = typeof auditEvents.$inferInsert;
+export type RateLimitHit = typeof rateLimitHits.$inferSelect;

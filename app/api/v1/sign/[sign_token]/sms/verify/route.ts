@@ -6,7 +6,7 @@ import { smsVerifySchema } from "@/lib/validation";
 import { verifyCode } from "@/lib/services/sms";
 import { apiError } from "@/lib/http/errors";
 import { clientIp } from "@/lib/http/ip";
-import { rateLimit } from "@/lib/rate-limit/upstash";
+import { rateLimit } from "@/lib/rate-limit/db";
 
 export const runtime = "nodejs";
 

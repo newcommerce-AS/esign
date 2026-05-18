@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm";
 import { apiError } from "@/lib/http/errors";
 import { constantTimeStringEq } from "@/lib/http/timing-safe";
 import { clientIp } from "@/lib/http/ip";
-import { rateLimit } from "@/lib/rate-limit/upstash";
+import { rateLimit } from "@/lib/rate-limit/db";
 
 export const runtime = "nodejs";
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSigningRequestSchema } from "@/lib/validation";
-import { rateLimit } from "@/lib/rate-limit/upstash";
+import { rateLimit } from "@/lib/rate-limit/db";
 import { createSigningRequest } from "@/lib/services/create-request";
 import { apiError } from "@/lib/http/errors";
 import { clientIp } from "@/lib/http/ip";

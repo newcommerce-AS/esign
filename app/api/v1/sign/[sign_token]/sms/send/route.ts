@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db, initDb } from "@/lib/db/client";
 import { signers } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { rateLimit } from "@/lib/rate-limit/upstash";
+import { rateLimit } from "@/lib/rate-limit/db";
 import { sendSmsCode } from "@/lib/services/sms";
 import { apiError } from "@/lib/http/errors";
 
