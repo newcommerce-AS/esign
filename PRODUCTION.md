@@ -8,11 +8,12 @@ Free-tier production deployment for `esign.newcommerce.no` on Vercel Hobby.
 
 | Service | URL | Plan | What we use | Free-tier limits |
 |---|---|---|---|---|
-| Neon Postgres | https://neon.tech | Free | Primary DB | 0.5 GB storage |
+| Neon Postgres | https://neon.tech | Free | Primary DB + rate limiting | 0.5 GB storage |
 | Vercel Blob | (Vercel dashboard → Storage) | Hobby | PDF storage | 1 GB storage / 10 GB bw |
 | Resend | https://resend.com | Free | Outbound email | 3 000/mo, 100/day, 1 verified domain |
-| Upstash Redis | https://upstash.com | Free | Rate limiting | 10 K req/day |
 | Twilio | https://twilio.com | Pay-as-you-go | SMS verification (optional) | No free tier; ~$15 trial credit |
+
+> **Rate-limiting uses our existing Postgres database (Neon) — no separate Redis service needed.**
 
 > **Twilio is optional.** The app works fully without it — signer phone numbers are simply rejected at create-time with a clear error. Enable SMS later by adding the three Twilio env vars.
 
@@ -26,13 +27,11 @@ Free-tier production deployment for `esign.newcommerce.no` on Vercel Hobby.
 
 3. **Provision Vercel Blob** — in the Vercel dashboard, go to the project → Storage → Create → Blob store. The token is injected automatically into the project env as `BLOB_READ_WRITE_TOKEN`.
 
-4. **Provision Upstash Redis** — use the Vercel integration (Vercel dashboard → Integrations → Upstash) for one-click setup. It injects `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` automatically.
+4. **Provision Resend** — create a free account at https://resend.com. Add `esign.newcommerce.no` as a domain and follow the DNS instructions (DKIM/SPF/DMARC — Resend gives exact values to paste at your domain registrar). Copy the API key.
 
-5. **Provision Resend** — create a free account at https://resend.com. Add `esign.newcommerce.no` as a domain and follow the DNS instructions (DKIM/SPF/DMARC — Resend gives exact values to paste at your domain registrar). Copy the API key.
+5. **(Optional) Provision Twilio** — create an account, buy a Norwegian number, note the Account SID, Auth Token, and phone number. Skip entirely to disable SMS.
 
-6. **(Optional) Provision Twilio** — create an account, buy a Norwegian number, note the Account SID, Auth Token, and phone number. Skip entirely to disable SMS.
-
-7. **Set env vars in Vercel project settings** (Settings → Environment Variables):
+6. **Set env vars in Vercel project settings** (Settings → Environment Variables):
 
    | Variable | Value | Required |
    |---|---|---|
@@ -40,8 +39,6 @@ Free-tier production deployment for `esign.newcommerce.no` on Vercel Hobby.
    | `BLOB_READ_WRITE_TOKEN` | Auto-injected by Vercel Blob | Yes |
    | `RESEND_API_KEY` | From Resend dashboard | Yes |
    | `RESEND_FROM_ADDRESS` | `no-reply@esign.newcommerce.no` | Yes |
-   | `UPSTASH_REDIS_REST_URL` | Auto-injected by Upstash integration | Yes |
-   | `UPSTASH_REDIS_REST_TOKEN` | Auto-injected by Upstash integration | Yes |
    | `APP_BASE_URL` | `https://esign.newcommerce.no` | Yes |
    | `APP_VERSION` | `$VERCEL_GIT_COMMIT_SHA` (use Vercel system env) | Recommended |
    | `CRON_SECRET` | Run `openssl rand -hex 32` and paste value | Yes |
@@ -49,7 +46,7 @@ Free-tier production deployment for `esign.newcommerce.no` on Vercel Hobby.
    | `TWILIO_AUTH_TOKEN` | From Twilio console | Optional |
    | `TWILIO_FROM_NUMBER` | E.g. `+4712345678` | Optional |
 
-8. **Run DB migrations locally against production** — before the first deploy (and after any schema change), run:
+7. **Run DB migrations locally against production** — before the first deploy (and after any schema change), run:
 
    ```bash
    DATABASE_URL="<your-neon-url>" pnpm db:migrate
@@ -57,11 +54,11 @@ Free-tier production deployment for `esign.newcommerce.no` on Vercel Hobby.
 
    Do **not** add `db:migrate` to the Vercel build command — running migrations on every deploy is risky. Migrations are an out-of-band manual step.
 
-9. **Configure DNS** — add a `CNAME` record: `esign → cname.vercel-dns.com`. Vercel will prompt you to verify the domain.
+8. **Configure DNS** — add a `CNAME` record: `esign → cname.vercel-dns.com`. Vercel will prompt you to verify the domain.
 
-10. **Trigger first deploy** — Vercel auto-deploys when the GitHub connection is active. Or click "Deploy" in the dashboard.
+9. **Trigger first deploy** — Vercel auto-deploys when the GitHub connection is active. Or click "Deploy" in the dashboard.
 
-11. **Verify deploy**:
+10. **Verify deploy**:
 
     ```bash
     curl https://esign.newcommerce.no/api/healthz
@@ -76,7 +73,6 @@ Free-tier production deployment for `esign.newcommerce.no` on Vercel Hobby.
         "db": "ok",
         "resend": "configured",
         "blob": "configured",
-        "redis": "configured",
         "twilio": "configured"
       }
     }
@@ -84,9 +80,9 @@ Free-tier production deployment for `esign.newcommerce.no` on Vercel Hobby.
 
     If Twilio is not configured, `twilio` will show `"missing (SMS disabled)"` and `ok` will still be `true`.
 
-12. **Smoke-test** — create a real signing request from the UI using your own email as sender and a test email as signer. Confirm the flow end-to-end.
+11. **Smoke-test** — create a real signing request from the UI using your own email as sender and a test email as signer. Confirm the flow end-to-end.
 
-13. **Publish MCP package** (optional) — if you want the npm-installable MCP server:
+12. **Publish MCP package** (optional) — if you want the npm-installable MCP server:
 
     ```bash
     npm login
@@ -110,7 +106,6 @@ Free-tier production deployment for `esign.newcommerce.no` on Vercel Hobby.
 |---|---|---|---|
 | Neon storage | 0.5 GB | ~10 KB per request (metadata only; blobs deleted on completion) | ~50 000 signing requests |
 | Resend | 3 000 emails/mo | ~3 emails per flow (confirm + invite(s) + completion) | ~1 000 flows/mo |
-| Upstash Redis | 10 K ops/day | ~10 ops per signing request (rate-limit checks) | ~1 000 requests/day |
 | Vercel Blob | 1 GB storage, 10 GB bw | PDFs deleted after completion; bandwidth per signing flow | Well within limits for low-volume use |
 
 ---
