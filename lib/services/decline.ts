@@ -5,6 +5,7 @@ import { logAudit } from "@/lib/audit/log";
 import { sendEmail } from "@/lib/email/resend-client";
 import { DeclineEmail } from "@/lib/email/templates/decline";
 import { fireWebhook } from "@/lib/webhook/fire";
+import { deleteBlob } from "@/lib/storage/blob";
 
 export async function performDecline(signerId: string, reason: string): Promise<{ ok: boolean }> {
   await initDb();
@@ -20,5 +21,8 @@ export async function performDecline(signerId: string, reason: string): Promise<
   const recipients = [{ name: "avsender", email: req.senderEmail }, ...otherSigners.filter((o) => o.id !== s.id).map((o) => ({ name: o.name, email: o.email }))];
   await Promise.all(recipients.map((r) => sendEmail({ to: r.email, subject: `Signeringsoppdrag avbrutt: ${doc.originalFilename}`, react: DeclineEmail({ recipientName: r.name, documentName: doc.originalFilename, declinerName: s.name, reason }) })));
   if (req.webhookUrl && req.webhookSecret) await fireWebhook(req.webhookUrl, req.webhookSecret, { event: "declined", signing_request_id: req.id, signer_id: s.id, occurred_at: new Date().toISOString(), request_status: "cancelled" });
+  // Delete all blobs then hard-delete the row (cascades to documents, signers, audit_events).
+  await Promise.all([doc.originalBlobUrl, doc.renderedPdfBlobUrl, doc.finalSignedPdfBlobUrl].filter((u): u is string => !!u).map((u) => deleteBlob(u).catch(() => {})));
+  await db.delete(signingRequests).where(eq(signingRequests.id, s.signingRequestId));
   return { ok: true };
 }

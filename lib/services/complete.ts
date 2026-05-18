@@ -2,7 +2,7 @@ import { db, initDb } from "@/lib/db/client";
 import { signingRequests, signers, documents } from "@/lib/db/schema";
 import { and, eq } from "drizzle-orm";
 import { finalizeSignedPdf } from "@/lib/pdf/finalize";
-import { putPdf } from "@/lib/storage/blob";
+import { deleteBlob } from "@/lib/storage/blob";
 import { logAudit } from "@/lib/audit/log";
 import { sendEmail } from "@/lib/email/resend-client";
 import { CompletionEmail } from "@/lib/email/templates/completion";
@@ -23,6 +23,7 @@ export async function completeIfDone(signingRequestId: string): Promise<boolean>
 
   const [doc] = await db.select().from(documents).where(eq(documents.signingRequestId, signingRequestId));
   const originalRendered = await fetch(doc.renderedPdfBlobUrl).then((r) => r.arrayBuffer()).then((b) => Buffer.from(b));
+  // Build final PDF in memory only — do NOT upload to blob storage.
   const finalPdf = await finalizeSignedPdf(originalRendered, {
     documentId: doc.id, documentSha256: doc.renderedPdfSha256,
     originalFilename: doc.originalFilename, originalFormat: doc.originalFormat as "pdf" | "markdown" | "text",
@@ -36,8 +37,6 @@ export async function completeIfDone(signingRequestId: string): Promise<boolean>
       consentText: s.consentText!, signTokenHash: s.signTokenHash,
     })),
   });
-  const finalUrl = await putPdf(`${signingRequestId}/final.pdf`, finalPdf);
-  await db.update(documents).set({ finalSignedPdfBlobUrl: finalUrl }).where(eq(documents.signingRequestId, signingRequestId));
   await logAudit({ signingRequestId, eventType: "completed" });
   const recipients = [{ name: "avsender", email: claimed.senderEmail }, ...sgs.map((s) => ({ name: s.name, email: s.email }))];
   const allSignerNames = sgs.map((s) => s.name);
@@ -47,5 +46,8 @@ export async function completeIfDone(signingRequestId: string): Promise<boolean>
     attachments: [{ filename: `signed-${doc.originalFilename.replace(/\.[^.]+$/, "")}.pdf`, content: finalPdf }],
   })));
   if (claimed.webhookUrl && claimed.webhookSecret) await fireWebhook(claimed.webhookUrl, claimed.webhookSecret, { event: "completed", signing_request_id: claimed.id, occurred_at: completedAt.toISOString(), request_status: "completed" });
+  // Delete all blobs then hard-delete the row (cascades to documents, signers, audit_events).
+  await Promise.all([doc.originalBlobUrl, doc.renderedPdfBlobUrl].filter((u): u is string => !!u).map((u) => deleteBlob(u).catch(() => {})));
+  await db.delete(signingRequests).where(eq(signingRequests.id, signingRequestId));
   return true;
 }
