@@ -36,7 +36,7 @@ The current frontend was designed desktop-first. On mobile (verified on iPhone S
 Replace the `<iframe src={pdfUrl}>` in `app/sign/[sign_token]/signer-view.tsx` with a `react-pdf`-based viewer that renders pages to `<canvas>`. This works identically on iOS, Android, and desktop, eliminating the iframe-blocked-on-iOS class of bug.
 
 - Dependency: `react-pdf` v10.x (or latest compatible with React 19), plus `pdfjs-dist` (transitive but pinned).
-- Worker: copy `node_modules/pdfjs-dist/build/pdf.worker.min.mjs` into `public/` via a `postinstall` script in `package.json`. Set `pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs"`. This avoids every Next/Turbopack bundler quirk around `new URL(..., import.meta.url)`.
+- Worker: `pdf.worker.min.mjs` is committed directly into `public/`. Set `pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs"`. (An earlier `postinstall`-copy approach failed on Vercel because pnpm's lifecycle order meant the file under `.pnpm/pdfjs-dist@<v>/...` was not yet on disk when the root postinstall ran. Committing the worker eliminates the install-timing dependency. To refresh after bumping `pdfjs-dist`: `cp node_modules/pdfjs-dist/build/pdf.worker.min.mjs public/`.)
 - Render mode: canvas-only (no text-layer / annotation-layer). The signer just needs to read; selectable text adds known CSS/overlap bugs and is not worth it for v1. Can be opted into later if requested.
 - Renders all pages stacked vertically. Page width fits container, height auto.
 - Loading state: existing skeleton card.

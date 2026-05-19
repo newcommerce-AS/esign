@@ -13,8 +13,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
-    "build:mcp": "pnpm -F @newcommerce/esign-mcp build",
-    "postinstall": "node -e \"require('fs').copyFileSync(require.resolve('pdfjs-dist/build/pdf.worker.min.mjs'), 'public/pdf.worker.min.mjs')\""
+    "build:mcp": "pnpm -F @newcommerce/esign-mcp build"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.4.5",

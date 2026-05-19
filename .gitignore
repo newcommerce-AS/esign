@@ -49,6 +49,3 @@ next-env.d.ts
 # Playwright
 /test-results
 /playwright-report
-
-# pdf.js worker copied here by postinstall (see package.json)
-/public/pdf.worker.min.mjs
