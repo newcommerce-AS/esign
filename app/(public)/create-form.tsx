@@ -113,7 +113,7 @@ export function CreateForm() {
             </div>
           )}
 
-          <div style={{ display: "flex", gap: 10, paddingTop: 8 }}>
+          <div style={{ display: "flex", gap: 10, paddingTop: 8, flexWrap: "wrap" }}>
             {result.id && result.sender_lookup_token && (
               <Button variant="secondary" iconRight="arrow" as="a" href={`/status/${result.sender_lookup_token}?id=${result.id}`}>
                 Gå til status­side
@@ -186,15 +186,15 @@ export function CreateForm() {
               <span style={{ fontSize: 12, color: "var(--fg-faint)", fontFamily: "var(--font-mono)" }}>{signers.length} / 10</span>
             </div>
             {signers.map((s, i) => (
-              <div key={i} style={{ border: "1px solid var(--border)", borderRadius: "var(--r-sm)", padding: 14, background: "var(--bg)", display: "grid", gap: 10, alignItems: "center", gridTemplateColumns: "1fr 1fr 1fr auto" }}>
+              <div key={i} className="es-signer-row" style={{ border: "1px solid var(--border)", borderRadius: "var(--r-sm)", padding: 14, background: "var(--bg)" }}>
                 <span style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "var(--fg-faint)", fontFamily: "var(--font-mono)" }}>
                   <span style={{ width: 20, height: 20, borderRadius: 10, background: "var(--bg-mute)", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "var(--fg-muted)" }}>{i + 1}</span>
                 </span>
                 <input placeholder="Navn" value={s.name} onChange={(e) => updateSigner(i, "name", e.target.value)}
                   className="border rounded px-3 py-2 text-sm w-full es-input" style={{ borderColor: "var(--border-strong)", borderRadius: "var(--r-sm)", background: "#fff", color: "var(--fg)", fontFamily: "var(--font-sans)" }} />
-                <input placeholder="E-post" type="email" value={s.email} onChange={(e) => updateSigner(i, "email", e.target.value)}
+                <input data-signer-email placeholder="E-post" type="email" value={s.email} onChange={(e) => updateSigner(i, "email", e.target.value)}
                   className="border rounded px-3 py-2 text-sm w-full es-input" style={{ borderColor: "var(--border-strong)", borderRadius: "var(--r-sm)", background: "#fff", color: "var(--fg)", fontFamily: "var(--font-mono)", fontSize: 13 }} />
-                <button type="button" onClick={() => removeSigner(i)}
+                <button type="button" aria-label="Fjern signant" onClick={() => removeSigner(i)}
                   style={{ background: "transparent", border: "none", padding: 6, color: "var(--fg-faint)", cursor: "pointer", borderRadius: 4 }}>
                   <Icon name="trash" size={14} />
                 </button>

@@ -45,3 +45,10 @@ next-env.d.ts
 .dev-db
 .dev-blobs
 .dev-mail
+
+# Playwright
+/test-results
+/playwright-report
+
+# pdf.js worker copied here by postinstall (see package.json)
+/public/pdf.worker.min.mjs

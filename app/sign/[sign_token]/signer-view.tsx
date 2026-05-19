@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { MonoChip } from "@/components/ui/mono-chip";
@@ -8,6 +9,18 @@ import { Icon, Spinner } from "@/components/ui/icons";
 import { Modal } from "@/components/ui/modal";
 import { Textarea } from "@/components/ui/textarea";
 import { Banner } from "@/components/ui/banner";
+
+const PdfViewer = dynamic(
+  () => import("@/components/pdf-viewer").then((m) => m.PdfViewer),
+  {
+    ssr: false,
+    loading: () => (
+      <div style={{ background: "#525252", borderRadius: "var(--r-md)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", height: "100%", width: "100%", color: "#e7e5e4", gap: 10 }}>
+        <Spinner color="#e7e5e4" /> <span style={{ fontSize: 13.5 }}>Henter dokument…</span>
+      </div>
+    ),
+  },
+);
 
 interface Loaded {
   signing_request_id: string;
@@ -164,13 +177,13 @@ export function SignerView({ signToken }: { signToken: string }) {
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-mute)", display: "flex", flexDirection: "column", position: "relative" }}>
       {/* Header */}
-      <header style={{ background: "#fff", borderBottom: "1px solid var(--border)", padding: "14px 32px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, position: "sticky", top: 0, zIndex: 5 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 24, minWidth: 0, flex: 1 }}>
-          <a href="/" style={{ fontWeight: 600, fontSize: 16, letterSpacing: -0.4, display: "inline-flex", alignItems: "center", gap: 7, color: "var(--fg)", textDecoration: "none" }}>
+      <header className="es-sign-header" style={{ background: "#fff", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, position: "sticky", top: 0, zIndex: 5, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 16, minWidth: 0, flex: 1 }}>
+          <a href="/" style={{ fontWeight: 600, fontSize: 16, letterSpacing: -0.4, display: "inline-flex", alignItems: "center", gap: 7, color: "var(--fg)", textDecoration: "none", flexShrink: 0 }}>
             <svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><rect x="1" y="1" width="18" height="18" rx="4" fill="currentColor"/><path d="M5.5 14c1.8-1.8 2.8-6 4.8-6s2 4 4 4" fill="none" stroke="#fafaf9" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/><path d="M5.5 16h9" fill="none" stroke="#fafaf9" strokeWidth="1.6" strokeLinecap="round"/></svg>
             <span>esign</span>
           </a>
-          <span style={{ width: 1, height: 18, background: "var(--border)" }} />
+          <span className="es-sign-divider" style={{ width: 1, height: 18, background: "var(--border)" }} />
           <span style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0, flex: 1 }}>
             <Icon name="doc" size={15} style={{ color: "var(--fg-muted)", flexShrink: 0 }} />
             <span style={{ fontSize: 13.5, fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{data?.document.filename}</span>
@@ -180,29 +193,26 @@ export function SignerView({ signToken }: { signToken: string }) {
             </span>
           </span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+        <div className="es-sign-chips" style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
           <Pill tone="outline" icon="clock" size="sm">Utløper {expiresDate}</Pill>
-          {data && <MonoChip label="SHA-256" size="sm">{data.document.sha256.slice(0, 16)}…</MonoChip>}
+          <span className="es-sign-hash">
+            {data && <MonoChip label="SHA-256" size="sm">{data.document.sha256.slice(0, 16)}…</MonoChip>}
+          </span>
         </div>
       </header>
 
       {/* Content */}
-      <div style={{ flex: 1, padding: "28px 32px" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.5fr) minmax(360px, 1fr)", gap: 24, maxWidth: 1400, margin: "0 auto", alignItems: "flex-start" }}>
+      <div className="es-sign-content">
+        <div className="es-sign-grid">
           {/* PDF viewer */}
           {data && (
-            <div style={{ background: "#525252", borderRadius: "var(--r-md)", overflow: "hidden", border: "1px solid var(--border)", display: "flex", flexDirection: "column", height: 720 }}>
-              <div style={{ height: 36, background: "#404040", display: "flex", alignItems: "center", padding: "0 12px", justifyContent: "space-between", color: "#e7e5e4", fontSize: 12 }}>
-                <span style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: "var(--font-mono)" }}>
-                  <Icon name="doc" size={13} /> {data.document.filename}
-                </span>
-              </div>
-              <iframe src={data.document.url} style={{ flex: 1, border: "none", width: "100%" }} title={`Dokument: ${data.document.filename}`} />
+            <div className="es-sign-pdf">
+              <PdfViewer url={data.document.url} filename={data.document.filename} />
             </div>
           )}
 
           {/* Sign panel */}
-          <Card padding={28} style={{ background: "#fff" }}>
+          <Card padding={28} className="es-sign-panel" style={{ background: "#fff" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
               <div>
                 <h2 style={{ fontSize: 22, fontWeight: 600, letterSpacing: -0.5, margin: "0 0 6px" }}>Signer dokumentet</h2>

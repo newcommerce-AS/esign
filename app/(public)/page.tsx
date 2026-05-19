@@ -42,9 +42,9 @@ function SectionLabel({ n, label }: { n: string; label: string }) {
 
 function AuditLine({ t, l, v, last }: { t: string; l: string; v: string; last?: boolean }) {
   return (
-    <div className="grid gap-3.5 font-mono text-xs leading-relaxed" style={{ gridTemplateColumns: "180px 1fr", paddingBottom: last ? 0 : 2 }}>
+    <div className="es-audit-row grid gap-3.5 font-mono text-xs leading-relaxed" style={{ paddingBottom: last ? 0 : 2 }}>
       <span className="text-fg-faint">{t}</span>
-      <span>
+      <span style={{ wordBreak: "break-word" }}>
         <span className="text-accent">{l}</span>
         {" "}
         <span className="text-fg-faint">{v}</span>
