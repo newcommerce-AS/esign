@@ -72,7 +72,7 @@ export default function StatusPage() {
       {/* ── Header ──────────────────────────────────────────────── */}
       {data ? (
         <div style={{ background: "#fff", borderBottom: "1px solid var(--border)" }}>
-          <div style={{ maxWidth: 1100, margin: "0 auto", padding: "28px 32px 22px" }}>
+          <div className="es-status-header-inner" style={{ maxWidth: 1100, margin: "0 auto" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, color: "var(--fg-muted)", fontSize: 13, marginBottom: 14, fontFamily: "var(--font-mono)" }}>
               <a href="/" style={{ color: "inherit", display: "inline-flex", alignItems: "center", gap: 4, textDecoration: "none" }}>
                 <Icon name="chevd" size={12} style={{ transform: "rotate(90deg)" }} /> esign
@@ -104,7 +104,7 @@ export default function StatusPage() {
           </div>
         </div>
       ) : (
-        <div style={{ background: "#fff", borderBottom: "1px solid var(--border)", padding: "28px 32px" }}>
+        <div className="es-status-header-empty" style={{ background: "#fff", borderBottom: "1px solid var(--border)" }}>
           <div style={{ maxWidth: 1100, margin: "0 auto" }}>
             <h1 style={{ fontSize: 24, fontWeight: 600, letterSpacing: -0.5, margin: "0 0 4px" }}>Status</h1>
             <p style={{ fontSize: 14, color: "var(--fg-muted)" }}>Skriv inn signing-request ID for å se status.</p>
@@ -114,23 +114,23 @@ export default function StatusPage() {
 
       {/* ── Banners for terminal states ──────────────────────────── */}
       {deleted && (
-        <div style={{ maxWidth: 1100, margin: "24px auto -8px", padding: "0 32px" }}>
+        <div className="es-status-banner" style={{ maxWidth: 1100, margin: "24px auto -8px" }}>
           <Banner tone="success" title="Ferdigstilt og slettet.">Dette signeringsoppdraget er ferdig — den signerte PDFen er sendt til alle parter på e-post. Vi har slettet alle data fra våre servere.</Banner>
         </div>
       )}
       {data?.status === "cancelled" && (
-        <div style={{ maxWidth: 1100, margin: "24px auto -8px", padding: "0 32px" }}>
+        <div className="es-status-banner" style={{ maxWidth: 1100, margin: "24px auto -8px" }}>
           <Banner tone="warn" title="Oppdraget er kansellert.">Oppdraget ble kansellert {fmtDate(data.cancelled_at)}. Lenken kan ikke lenger brukes.</Banner>
         </div>
       )}
       {data?.status === "expired" && (
-        <div style={{ maxWidth: 1100, margin: "24px auto -8px", padding: "0 32px" }}>
+        <div className="es-status-banner" style={{ maxWidth: 1100, margin: "24px auto -8px" }}>
           <Banner tone="warn" title="Oppdraget er utløpt.">Lenken utløp {fmtDate(data.expires_at)}. Signantene kan ikke lenger signere — opprett et nytt oppdrag.</Banner>
         </div>
       )}
 
       {/* ── Body ────────────────────────────────────────────────── */}
-      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "28px 32px 56px" }}>
+      <div className="es-status-body" style={{ maxWidth: 1100, margin: "0 auto" }}>
         {!data && !deleted && (
           <Card padding={28} style={{ background: "#fff", maxWidth: 480 }}>
             <div style={{ display: "flex", gap: 10 }}>
@@ -152,7 +152,7 @@ export default function StatusPage() {
         )}
 
         {data && (
-          <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 28 }}>
+          <div className="es-status-grid" style={{ display: "grid", gap: 28 }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
               {/* Signers stepper */}
               <Card padding={24} style={{ background: "#fff" }}>

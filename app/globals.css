@@ -116,3 +116,83 @@ a { color: inherit; }
 @keyframes es-spin  { to { transform: rotate(360deg); } }
 @keyframes es-blink { 50% { opacity: 0; } }
 @keyframes es-fade  { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+/* ── Sign page layout ────────────────────────────────────────────────── */
+.es-sign-header { padding: 14px 32px; }
+.es-sign-content { flex: 1; padding: 28px 32px; }
+.es-sign-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(360px, 1fr);
+  gap: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+  align-items: flex-start;
+}
+.es-sign-pdf { height: 720px; min-height: 0; }
+.es-sign-panel { /* desktop default — no overrides */ }
+.es-pdf-scroll {
+  /* webkit smooth-scroll for iOS */
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 899px) {
+  .es-sign-header {
+    padding: 12px 16px;
+    gap: 8px;
+  }
+  .es-sign-divider { display: none; }
+  .es-sign-chips {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+  .es-sign-hash { display: none; } /* SHA chip eats too much width — visible in panel below */
+  .es-sign-content { padding: 16px 12px; }
+  .es-sign-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+  .es-sign-pdf { height: 60vh; max-height: 600px; min-height: 320px; }
+}
+
+/* ── Generic public-page responsive helpers ──────────────────────────── */
+.es-page-pad { padding: 28px 32px; }
+@media (max-width: 720px) {
+  .es-page-pad { padding: 20px 16px; }
+}
+
+/* ── Create-form signer row ──────────────────────────────────────────── */
+.es-signer-row {
+  display: grid;
+  gap: 10px;
+  align-items: center;
+  grid-template-columns: auto 1fr 1fr auto;
+}
+@media (max-width: 599px) {
+  .es-signer-row {
+    grid-template-columns: auto 1fr auto;
+    row-gap: 8px;
+  }
+  .es-signer-row > [data-signer-email] { grid-column: 1 / -1; }
+}
+
+/* ── Status page layout ──────────────────────────────────────────────── */
+.es-status-header-inner { padding: 28px 32px 22px; }
+.es-status-header-empty { padding: 28px 32px; }
+.es-status-body         { padding: 28px 32px 56px; }
+.es-status-banner       { padding: 0 32px; }
+.es-status-grid         { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); }
+
+@media (max-width: 899px) {
+  .es-status-header-inner { padding: 20px 16px 16px; }
+  .es-status-header-empty { padding: 20px 16px; }
+  .es-status-body         { padding: 20px 16px 40px; }
+  .es-status-banner       { padding: 0 16px; }
+  .es-status-grid         { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ── Landing-page audit row — narrow first column on phone ───────────── */
+.es-audit-row { grid-template-columns: 180px 1fr; }
+@media (max-width: 599px) {
+  .es-audit-row { grid-template-columns: minmax(0, 1fr); row-gap: 2px; }
+}
