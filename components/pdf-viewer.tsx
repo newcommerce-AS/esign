@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import { Icon, Spinner } from "@/components/ui/icons";
 
@@ -15,6 +15,16 @@ export function PdfViewer({ url, filename }: Props) {
   const [width, setWidth] = useState<number | null>(null);
   const [numPages, setNumPages] = useState(0);
   const [failed, setFailed] = useState(false);
+  const [errMsg, setErrMsg] = useState<string | null>(null);
+
+  const docOptions = useMemo(
+    () => ({
+      cMapUrl: "/pdf-cmaps/",
+      cMapPacked: true,
+      standardFontDataUrl: "/pdf-fonts/",
+    }),
+    [],
+  );
 
   useEffect(() => {
     const el = containerRef.current;
@@ -80,7 +90,7 @@ export function PdfViewer({ url, filename }: Props) {
         }}
       >
         {failed ? (
-          <div style={{ color: "#fafaf9", textAlign: "center", padding: 32, fontSize: 14, lineHeight: 1.6 }}>
+          <div style={{ color: "#fafaf9", textAlign: "center", padding: 24, fontSize: 14, lineHeight: 1.6, maxWidth: "100%" }}>
             <Icon name="alert" size={28} />
             <p style={{ margin: "12px 0 6px" }}>Kunne ikke vise dokumentet.</p>
             <a
@@ -91,13 +101,19 @@ export function PdfViewer({ url, filename }: Props) {
             >
               Åpne dokument i ny fane
             </a>
+            {errMsg && (
+              <pre style={{ marginTop: 16, fontSize: 11, lineHeight: 1.4, color: "#d6d3d1", whiteSpace: "pre-wrap", wordBreak: "break-word", textAlign: "left", background: "#404040", padding: 10, borderRadius: 4, maxWidth: "100%", overflow: "auto" }}>
+                {errMsg}
+              </pre>
+            )}
           </div>
         ) : (
           <Document
             file={url}
+            options={docOptions}
             onLoadSuccess={({ numPages }) => setNumPages(numPages)}
-            onLoadError={() => setFailed(true)}
-            onSourceError={() => setFailed(true)}
+            onLoadError={(e) => { console.error("pdf load error", e); setErrMsg(e?.message ?? String(e)); setFailed(true); }}
+            onSourceError={(e) => { console.error("pdf source error", e); setErrMsg(e?.message ?? String(e)); setFailed(true); }}
             loading={
               <div style={{ color: "#e7e5e4", display: "flex", alignItems: "center", gap: 10, padding: 40 }}>
                 <Spinner color="#e7e5e4" />
