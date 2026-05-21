@@ -52,8 +52,7 @@ export function CompletionEmail({
             <Hr style={{ borderColor: "#e7e5e4", margin: "28px 0 18px" }} />
             <Text style={{ ...base, ...mono, ...muted, lineHeight: 1.7, margin: 0 }}>
               {attachmentName && <>attachment &nbsp;{attachmentName}<br /></>}
-              {sha256 && <>sha-256 &nbsp;&nbsp;&nbsp;&nbsp;{sha256.slice(0, 16)}…{sha256.slice(-4)}<br /></>}
-              audit-pages s. siste
+              {sha256 && <>sha-256 &nbsp;&nbsp;&nbsp;&nbsp;{sha256.slice(0, 16)}…{sha256.slice(-4)}</>}
             </Text>
           </Section>
           <Text style={{ ...base, ...mono, color: "#a8a29e", fontSize: 11.5, textAlign: "center", marginTop: 12 }}>
