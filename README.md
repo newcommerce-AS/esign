@@ -47,3 +47,5 @@ See [PRODUCTION.md](PRODUCTION.md) for the full free-tier production deployment 
 ## Spec
 
 See `docs/superpowers/specs/2026-05-16-esign-design.md`.
+
+<!-- orchestrator dryrun OK -->
