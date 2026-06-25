@@ -1,0 +1,42 @@
+import { NextRequest, NextResponse } from "next/server";
+import { db, initDb } from "@/lib/db/client";
+import { signers, documents, signingRequests } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
+import { apiError } from "@/lib/http/errors";
+import { clientIp } from "@/lib/http/ip";
+import { rateLimit } from "@/lib/rate-limit/db";
+import { logAudit } from "@/lib/audit/log";
+import { pdfDownloadName, attachmentDisposition } from "@/lib/http/content-disposition";
+
+export const runtime = "nodejs";
+
+export async function GET(req: NextRequest, { params }: { params: Promise<{ sign_token: string }> }) {
+  const { sign_token } = await params;
+  const ip = clientIp(req);
+  const rl = await rateLimit(`api:ip:${ip}`, { limit: 60, windowSec: 60 });
+  if (!rl.success) return apiError("RATE_LIMITED", "Too many requests", 429);
+  await initDb();
+
+  const [s] = await db.select().from(signers).where(eq(signers.signToken, sign_token));
+  if (!s) return apiError("NOT_FOUND", "Invalid sign token", 404);
+
+  const [reqRow] = await db.select().from(signingRequests).where(eq(signingRequests.id, s.signingRequestId));
+  if (!reqRow) return apiError("NOT_FOUND", "Signing request not found", 404);
+  if (reqRow.status !== "active") return apiError("INVALID_STATE", `Request is ${reqRow.status}`, 409);
+
+  const [doc] = await db.select().from(documents).where(eq(documents.signingRequestId, s.signingRequestId));
+  if (!doc) return apiError("NOT_FOUND", "Document not found", 404);
+
+  const upstream = await fetch(doc.renderedPdfBlobUrl);
+  if (!upstream.ok || !upstream.body) return apiError("UPSTREAM_ERROR", "Could not fetch document", 502);
+
+  await logAudit({ signingRequestId: s.signingRequestId, signerId: s.id, eventType: "document_downloaded", ip });
+
+  return new NextResponse(upstream.body, {
+    status: 200,
+    headers: {
+      "content-type": "application/pdf",
+      "content-disposition": attachmentDisposition(pdfDownloadName(doc.originalFilename)),
+    },
+  });
+}
