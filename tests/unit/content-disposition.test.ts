@@ -27,4 +27,7 @@ describe("attachmentDisposition", () => {
     expect(cd).toContain(encodeURIComponent("kjøpsavtale_ø.pdf"));
     expect(cd).toMatch(/filename="[\x20-\x7e]+"/);
   });
+  it("reflects the forced .pdf name end-to-end via pdfDownloadName", () => {
+    expect(attachmentDisposition(pdfDownloadName("kontrakt.txt"))).toContain('filename="kontrakt.pdf"');
+  });
 });

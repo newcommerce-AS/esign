@@ -29,6 +29,7 @@ test("download endpoint streams PDF as attachment", async ({ baseURL }) => {
   expect(res.status()).toBe(200);
   expect(res.headers()["content-type"]).toContain("application/pdf");
   expect(res.headers()["content-disposition"]).toContain("attachment");
+  expect(res.headers()["content-disposition"]).toMatch(/filename[*]?=.*\.pdf/i);
 });
 
 test("download endpoint returns 404 for unknown token", async ({ baseURL }) => {

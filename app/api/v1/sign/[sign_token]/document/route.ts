@@ -21,9 +21,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ sign
   if (!s) return apiError("NOT_FOUND", "Invalid sign token", 404);
 
   const [reqRow] = await db.select().from(signingRequests).where(eq(signingRequests.id, s.signingRequestId));
+  if (!reqRow) return apiError("NOT_FOUND", "Signing request not found", 404);
   if (reqRow.status !== "active") return apiError("INVALID_STATE", `Request is ${reqRow.status}`, 409);
 
   const [doc] = await db.select().from(documents).where(eq(documents.signingRequestId, s.signingRequestId));
+  if (!doc) return apiError("NOT_FOUND", "Document not found", 404);
 
   const upstream = await fetch(doc.renderedPdfBlobUrl);
   if (!upstream.ok || !upstream.body) return apiError("UPSTREAM_ERROR", "Could not fetch document", 502);
