@@ -207,7 +207,7 @@ export function SignerView({ signToken }: { signToken: string }) {
           {/* PDF viewer */}
           {data && (
             <div className="es-sign-pdf">
-              <PdfViewer url={data.document.url} filename={data.document.filename} />
+              <PdfViewer url={data.document.url} filename={data.document.filename} downloadUrl={`/api/v1/sign/${signToken}/document`} />
             </div>
           )}
 

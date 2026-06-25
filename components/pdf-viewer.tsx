@@ -8,9 +8,10 @@ pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
 interface Props {
   url: string;
   filename: string;
+  downloadUrl?: string;
 }
 
-export function PdfViewer({ url, filename }: Props) {
+export function PdfViewer({ url, filename, downloadUrl }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [width, setWidth] = useState<number | null>(null);
   const [numPages, setNumPages] = useState(0);
@@ -68,11 +69,24 @@ export function PdfViewer({ url, filename }: Props) {
           <Icon name="doc" size={13} />
           <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{filename}</span>
         </span>
-        {numPages > 0 && (
-          <span style={{ fontFamily: "var(--font-mono)", flexShrink: 0 }}>
-            {numPages} {numPages === 1 ? "side" : "sider"}
-          </span>
-        )}
+        <span style={{ display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
+          {numPages > 0 && (
+            <span style={{ fontFamily: "var(--font-mono)" }}>
+              {numPages} {numPages === 1 ? "side" : "sider"}
+            </span>
+          )}
+          {downloadUrl && (
+            <a
+              href={downloadUrl}
+              download
+              title="Last ned dokument"
+              style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "#e7e5e4", textDecoration: "none", fontSize: 12 }}
+            >
+              <Icon name="download" size={14} />
+              <span className="hidden md:inline">Last ned</span>
+            </a>
+          )}
+        </span>
       </div>
 
       <div
