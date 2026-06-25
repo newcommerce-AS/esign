@@ -80,6 +80,7 @@ export function PdfViewer({ url, filename, downloadUrl }: Props) {
               href={downloadUrl}
               download
               title="Last ned dokument"
+              aria-label="Last ned dokument"
               style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "#e7e5e4", textDecoration: "none", fontSize: 12 }}
             >
               <Icon name="download" size={14} />
