@@ -6,20 +6,9 @@ import { apiError } from "@/lib/http/errors";
 import { clientIp } from "@/lib/http/ip";
 import { rateLimit } from "@/lib/rate-limit/db";
 import { logAudit } from "@/lib/audit/log";
+import { pdfDownloadName, attachmentDisposition } from "@/lib/http/content-disposition";
 
 export const runtime = "nodejs";
-
-// bytes er alltid rendret PDF, også for markdown/text-opplasting
-function pdfDownloadName(originalFilename: string): string {
-  return originalFilename.replace(/\.[^.]+$/, "") + ".pdf";
-}
-
-// RFC 5987: ascii-fallback + utf-8-kodet variant for æ/ø/å
-function contentDisposition(name: string): string {
-  const ascii = name.replace(/[^\x20-\x7e]/g, "_").replace(/["\\]/g, "_");
-  const encoded = encodeURIComponent(name);
-  return `attachment; filename="${ascii}"; filename*=UTF-8''${encoded}`;
-}
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ sign_token: string }> }) {
   const { sign_token } = await params;
@@ -45,7 +34,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ sign
     status: 200,
     headers: {
       "content-type": "application/pdf",
-      "content-disposition": contentDisposition(pdfDownloadName(doc.originalFilename)),
+      "content-disposition": attachmentDisposition(pdfDownloadName(doc.originalFilename)),
     },
   });
 }
