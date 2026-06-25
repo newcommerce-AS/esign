@@ -37,3 +37,25 @@ test("download endpoint returns 404 for unknown token", async ({ baseURL }) => {
   const res = await api.get(`/api/v1/sign/does-not-exist/document`);
   expect(res.status()).toBe(404);
 });
+
+test("signing page shows a download link", async ({ page, baseURL }) => {
+  const api = await request.newContext({ baseURL });
+  const body = await createAndConfirm(api);
+  const [{ signToken }] = await getSignTokensForRequest(body.id);
+
+  await page.goto(`/sign/${signToken}`);
+  await expect(page.getByText("har sendt deg")).toBeVisible();
+  await expect(page.getByRole("link", { name: /last ned/i })).toBeVisible();
+});
+
+test("download name is forced to .pdf for non-pdf uploads", async ({ baseURL }) => {
+  const api = await request.newContext({ baseURL });
+  const body = await createAndConfirm(api);
+  const [{ signToken }] = await getSignTokensForRequest(body.id);
+
+  const res = await api.get(`/api/v1/sign/${signToken}/document`);
+  expect(res.status()).toBe(200);
+  const cd = res.headers()["content-disposition"];
+  expect(cd).toContain('filename="avtale.pdf"');
+  expect(cd).not.toContain(".txt");
+});
