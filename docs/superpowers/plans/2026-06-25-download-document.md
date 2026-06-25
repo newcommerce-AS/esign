@@ -18,12 +18,23 @@
 - **Rate-limit-signatur:** `rateLimit("api:ip:" + ip, { limit: 60, windowSec: 60 })` fra `lib/rate-limit/db.ts`; returnerer `{ success: boolean }`.
 - **Commit-meldinger:** ingen `Co-Authored-By`-trailer.
 
+> **Verifiseringsvirkelighet (oppdatert under utførelse):** e2e-suiten kan ikke
+> kjøre grønt lokalt. `tests/e2e/helpers.ts` spør DB direkte fra test-runner-
+> prosessen; det fungerer kun med Neon-HTTP-driveren (stateless, cross-process),
+> ikke med lokal PGlite. Dette rammer *alle* eksisterende e2e-tester (`happy-path`,
+> `decline`, `sender-gate`) likt — det finnes ingen CI, og e2e er ment for en delt
+> Postgres. Derfor: **den lokale porten er vitest-unit-tester**, e2e-specene
+> beholdes som live-dekning når noen kjører mot Neon. Vi kjører IKKE e2e mot
+> prod-Neon (testene lager rader som ikke selv-slettes).
+
 ## File Structure
 
 - **Create:** `app/api/v1/sign/[sign_token]/document/route.ts` — proxy-endepunkt (GET).
+- **Create:** `lib/http/content-disposition.ts` — rene helpere (`pdfDownloadName`, `attachmentDisposition`).
+- **Create:** `tests/unit/content-disposition.test.ts` — vitest-unit-test (lokal port).
 - **Modify:** `components/pdf-viewer.tsx` — ny `downloadUrl?: string`-prop + nedlastingslenke i verktøylinjen.
 - **Modify:** `app/sign/[sign_token]/signer-view.tsx` — send `downloadUrl` til `PdfViewer`.
-- **Create:** `tests/e2e/download.spec.ts` — e2e-dekning for endepunkt + filnavnsregel + token-feil.
+- **Create:** `tests/e2e/download.spec.ts` — e2e-dekning (live når kjørt mot Neon; ikke lokal port).
 
 ---
 
@@ -31,7 +42,9 @@
 
 **Files:**
 - Create: `app/api/v1/sign/[sign_token]/document/route.ts`
-- Test: `tests/e2e/download.spec.ts` (opprettes her; utvides i Task 3)
+- Create: `lib/http/content-disposition.ts`
+- Test (lokal port): `tests/unit/content-disposition.test.ts`
+- Test (e2e, live-dekning): `tests/e2e/download.spec.ts` (opprettes her; utvides i Task 3)
 
 **Interfaces:**
 - Consumes:
@@ -98,9 +111,27 @@ test("download endpoint returns 404 for unknown token", async ({ baseURL }) => {
 - [ ] **Step 2: Kjør testen og verifiser at den feiler**
 
 Run: `pnpm test:e2e download.spec.ts`
-Expected: FAIL — `download endpoint streams PDF as attachment` får `404`/`405` (routen finnes ikke ennå); `unknown token`-testen kan tilfeldigvis passere fordi en manglende route også gir 404. Hovedsignalet er at attachment-testen feiler.
+Expected: FAIL — routen finnes ikke ennå. (Merk: e2e kjører ikke grønt lokalt, jf. Verifiseringsvirkelighet over. Den lokale porten er vitest-testen i Step 4b.)
 
-- [ ] **Step 3: Skriv minimal implementasjon**
+- [ ] **Step 3a: Trekk de rene helperne ut i en lib-modul**
+
+En `route.ts` bør bare eksportere HTTP-handlere + segment-config. Legg den testbare logikken i `lib/http/content-disposition.ts`:
+
+```typescript
+// bytes er alltid rendret PDF, også for markdown/text-opplasting
+export function pdfDownloadName(originalFilename: string): string {
+  return originalFilename.replace(/\.[^.]+$/, "") + ".pdf";
+}
+
+// RFC 5987: ascii-fallback + utf-8-kodet variant for æ/ø/å
+export function attachmentDisposition(name: string): string {
+  const ascii = name.replace(/[^\x20-\x7e]/g, "_").replace(/["\\]/g, "_");
+  const encoded = encodeURIComponent(name);
+  return `attachment; filename="${ascii}"; filename*=UTF-8''${encoded}`;
+}
+```
+
+- [ ] **Step 3b: Skriv routen som importerer helperne**
 
 Opprett `app/api/v1/sign/[sign_token]/document/route.ts`:
 
@@ -113,20 +144,9 @@ import { apiError } from "@/lib/http/errors";
 import { clientIp } from "@/lib/http/ip";
 import { rateLimit } from "@/lib/rate-limit/db";
 import { logAudit } from "@/lib/audit/log";
+import { pdfDownloadName, attachmentDisposition } from "@/lib/http/content-disposition";
 
 export const runtime = "nodejs";
-
-// bytes er alltid rendret PDF, også for markdown/text-opplasting
-function pdfDownloadName(originalFilename: string): string {
-  return originalFilename.replace(/\.[^.]+$/, "") + ".pdf";
-}
-
-// RFC 5987: ascii-fallback + utf-8-kodet variant for æ/ø/å
-function contentDisposition(name: string): string {
-  const ascii = name.replace(/[^\x20-\x7e]/g, "_").replace(/["\\]/g, "_");
-  const encoded = encodeURIComponent(name);
-  return `attachment; filename="${ascii}"; filename*=UTF-8''${encoded}`;
-}
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ sign_token: string }> }) {
   const { sign_token } = await params;
@@ -152,21 +172,59 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ sign
     status: 200,
     headers: {
       "content-type": "application/pdf",
-      "content-disposition": contentDisposition(pdfDownloadName(doc.originalFilename)),
+      "content-disposition": attachmentDisposition(pdfDownloadName(doc.originalFilename)),
     },
   });
 }
 ```
 
-- [ ] **Step 4: Kjør testen og verifiser at den passerer**
+- [ ] **Step 4a: Skriv vitest-unit-test for helperne (lokal port)**
 
-Run: `pnpm test:e2e download.spec.ts`
-Expected: PASS — begge testene grønne.
+Opprett `tests/unit/content-disposition.test.ts`:
+
+```typescript
+import { describe, it, expect } from "vitest";
+import { pdfDownloadName, attachmentDisposition } from "../../lib/http/content-disposition";
+
+describe("pdfDownloadName", () => {
+  it("forces .pdf for markdown/text uploads", () => {
+    expect(pdfDownloadName("avtale.md")).toBe("avtale.pdf");
+    expect(pdfDownloadName("kontrakt.txt")).toBe("kontrakt.pdf");
+  });
+  it("keeps .pdf uploads as .pdf", () => {
+    expect(pdfDownloadName("signert.pdf")).toBe("signert.pdf");
+  });
+  it("appends .pdf when there is no extension", () => {
+    expect(pdfDownloadName("avtale")).toBe("avtale.pdf");
+  });
+  it("only strips the last extension on multi-dot names", () => {
+    expect(pdfDownloadName("min.avtale.v2.md")).toBe("min.avtale.v2.pdf");
+  });
+});
+
+describe("attachmentDisposition", () => {
+  it("is an attachment with an ascii filename", () => {
+    expect(attachmentDisposition("avtale.pdf")).toContain('attachment; filename="avtale.pdf"');
+  });
+  it("encodes non-ascii via RFC 5987 filename*", () => {
+    const cd = attachmentDisposition("kjøpsavtale_ø.pdf");
+    expect(cd).toContain("filename*=UTF-8''");
+    expect(cd).toContain(encodeURIComponent("kjøpsavtale_ø.pdf"));
+    // ascii-fallbacken må ikke inneholde rå non-ascii-tegn
+    expect(cd).toMatch(/filename="[\x20-\x7e]+"/);
+  });
+});
+```
+
+- [ ] **Step 4b: Kjør unit-testen og verifiser at den passerer**
+
+Run: `pnpm test content-disposition`
+Expected: PASS — alle assertions grønne, output rent.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add "app/api/v1/sign/[sign_token]/document/route.ts" tests/e2e/download.spec.ts
+git add "app/api/v1/sign/[sign_token]/document/route.ts" tests/e2e/download.spec.ts lib/http/content-disposition.ts tests/unit/content-disposition.test.ts
 git commit -m "feat(sign): add document download proxy endpoint"
 ```
 
