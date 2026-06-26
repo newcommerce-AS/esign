@@ -36,12 +36,12 @@ export function SenderConfirmEmail({
             </Section>
 
             <Text style={{ ...base, fontSize: 14.5, ...muted, lineHeight: 1.65, margin: "0 0 18px" }}>
-              Klikk knappen under for å sende invitasjoner ut til signantene.
+              Klikk knappen under for å se dokumentet og bekrefte oppdraget. Først når du bekrefter, går invitasjonene ut til signantene.
             </Text>
 
             <Section style={{ margin: "18px 0 22px" }}>
               <Link href={confirmUrl} style={{ display: "inline-block", padding: "12px 22px", background: "#0a0a0a", color: "#ffffff", textDecoration: "none", borderRadius: 6, fontSize: 14, fontWeight: 500 }}>
-                Bekreft og send invitasjoner
+                Se og bekreft oppdraget
               </Link>
             </Section>
 
