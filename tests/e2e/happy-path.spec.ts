@@ -19,8 +19,10 @@ test("happy path: create → confirm → 2 signers sign → row deleted (404)", 
   expect(body.confirm_url).toContain("/confirm/");
   expect(body.signers).toHaveLength(2);
 
+  // Confirm is now an explicit action: open the preview, click Bekreft, get redirected.
   await page.goto(body.confirm_url);
-  await expect(page.getByText("Bekreftet")).toBeVisible();
+  await page.getByRole("button", { name: "Bekreft og send invitasjoner" }).click();
+  await page.waitForURL(/\/(sign|status)\//);
 
   const signTokens = await getSignTokensForRequest(body.id);
   for (const s of signTokens) {

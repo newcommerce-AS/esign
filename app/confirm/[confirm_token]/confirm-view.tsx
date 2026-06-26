@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { MonoChip } from "@/components/ui/mono-chip";
@@ -74,10 +75,10 @@ export function ConfirmView({ token, document, signers, senderEmail, expiresAt }
       {/* Header */}
       <header className="es-sign-header" style={{ background: "#fff", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, position: "sticky", top: 0, zIndex: 5, flexWrap: "wrap" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 16, minWidth: 0, flex: 1 }}>
-          <a href="/" style={{ fontWeight: 600, fontSize: 16, letterSpacing: -0.4, display: "inline-flex", alignItems: "center", gap: 7, color: "var(--fg)", textDecoration: "none", flexShrink: 0 }}>
+          <Link href="/" style={{ fontWeight: 600, fontSize: 16, letterSpacing: -0.4, display: "inline-flex", alignItems: "center", gap: 7, color: "var(--fg)", textDecoration: "none", flexShrink: 0 }}>
             <svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><rect x="1" y="1" width="18" height="18" rx="4" fill="currentColor"/><path d="M5.5 14c1.8-1.8 2.8-6 4.8-6s2 4 4 4" fill="none" stroke="#fafaf9" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/><path d="M5.5 16h9" fill="none" stroke="#fafaf9" strokeWidth="1.6" strokeLinecap="round"/></svg>
             <span>esign</span>
-          </a>
+          </Link>
           <span className="es-sign-divider" style={{ width: 1, height: 18, background: "var(--border)" }} />
           <span style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0, flex: 1 }}>
             <Icon name="doc" size={15} style={{ color: "var(--fg-muted)", flexShrink: 0 }} />

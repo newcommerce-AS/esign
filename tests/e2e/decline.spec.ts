@@ -1,7 +1,7 @@
 import { test, expect, request } from "@playwright/test";
-import { getSignTokensForRequest } from "./helpers";
+import { getSignTokensForRequest, confirmTokenFromUrl } from "./helpers";
 
-test("decline cancels the request and invalidates other signers' tokens", async ({ baseURL, page }) => {
+test("decline cancels the request and invalidates other signers' tokens", async ({ baseURL }) => {
   const api = await request.newContext({ baseURL });
   const create = await api.post("/api/v1/signing-requests", {
     data: {
@@ -11,7 +11,7 @@ test("decline cancels the request and invalidates other signers' tokens", async 
     },
   });
   const body = await create.json();
-  await page.goto(body.confirm_url);
+  await api.post(`/api/v1/confirm/${confirmTokenFromUrl(body.confirm_url)}`);
   const tokens = await getSignTokensForRequest(body.id);
   const decline = await api.post(`/api/v1/sign/${tokens[0].signToken}/decline`, { data: { reason: "ikke enig" } });
   expect(decline.ok()).toBeTruthy();
