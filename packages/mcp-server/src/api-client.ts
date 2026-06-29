@@ -16,6 +16,7 @@ export interface CreateInput {
 
 export const api = {
   create: (b: CreateInput) => request<unknown>("/signing-requests", { method: "POST", body: JSON.stringify(b) }),
+  confirm: (confirmToken: string) => request<unknown>(`/confirm/${confirmToken}`, { method: "POST" }),
   status: (id: string, token: string) => request<unknown>(`/signing-requests/${id}`, { headers: { "x-lookup-token": token } }),
   cancel: (id: string, token: string) => request<unknown>(`/signing-requests/${id}/cancel`, { method: "POST", headers: { "x-lookup-token": token } }),
 };

@@ -1,10 +1,9 @@
 import { test, expect, request } from "@playwright/test";
 import type { APIRequestContext } from "@playwright/test";
-import { getSignTokensForRequest } from "./helpers";
+import { getSignTokensForRequest, confirmTokenFromUrl } from "./helpers";
 
-// Oppretter et oppdrag og åpner sender-confirm-porten.
-// confirmSender() kjøres server-side når /confirm/<token> rendres (se app/confirm/[confirm_token]/page.tsx),
-// så et rent api.get på confirm_url aktiverer oppdraget (status → "active").
+// Oppretter et oppdrag og aktiverer det via den eksplisitte confirm-POST-en.
+// (En ren GET på confirm_url muterer ikke lenger — den viser bare forhåndsvisning.)
 async function createAndConfirm(api: APIRequestContext) {
   const create = await api.post("/api/v1/signing-requests", {
     data: {
@@ -15,7 +14,7 @@ async function createAndConfirm(api: APIRequestContext) {
   });
   expect(create.ok()).toBeTruthy();
   const body = await create.json();
-  const confirm = await api.get(body.confirm_url);
+  const confirm = await api.post(`/api/v1/confirm/${confirmTokenFromUrl(body.confirm_url)}`);
   expect(confirm.ok()).toBeTruthy();
   return body;
 }

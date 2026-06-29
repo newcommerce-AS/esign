@@ -14,6 +14,7 @@ export interface CreateSigningRequestResult {
   id: string;
   status: "awaiting_sender_confirm";
   confirm_url: string;
+  confirm_api_url: string;
   sender_lookup_token: string;
   webhook_secret: string | null;
   expires_at: string;
@@ -56,9 +57,10 @@ export async function createSigningRequest(input: CreateSigningRequestInput, sen
   })).returning();
   await logAudit({ signingRequestId: requestId, eventType: "request_created", payload: { signerCount: input.signers.length }, ip: senderIp });
   const confirmUrl = `${baseUrl}/confirm/${senderConfirmToken}`;
+  const confirmApiUrl = `${baseUrl}/api/v1/confirm/${senderConfirmToken}`;
   await sendEmail({ to: input.sender_email, subject: "Bekreft signeringsoppdrag", react: SenderConfirmEmail({ confirmUrl, signerNames: input.signers.map((s) => s.name) }) });
   return {
-    id: requestId, status: "awaiting_sender_confirm", confirm_url: confirmUrl,
+    id: requestId, status: "awaiting_sender_confirm", confirm_url: confirmUrl, confirm_api_url: confirmApiUrl,
     sender_lookup_token: senderLookupToken, webhook_secret: webhookSecret,
     expires_at: expiresAt.toISOString(),
     signers: signerRows.map((s) => ({ id: s.id, name: s.name, email: s.email, status: s.status })),

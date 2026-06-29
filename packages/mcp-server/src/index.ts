@@ -3,10 +3,11 @@ import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { ListToolsRequestSchema, CallToolRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 import { createSigningRequestTool } from "./tools/create-signing-request.js";
+import { confirmSigningRequestTool } from "./tools/confirm-signing-request.js";
 import { getStatusTool } from "./tools/get-signing-status.js";
 import { cancelTool } from "./tools/cancel-signing-request.js";
 
-const tools = [createSigningRequestTool, getStatusTool, cancelTool];
+const tools = [createSigningRequestTool, confirmSigningRequestTool, getStatusTool, cancelTool];
 
 const server = new Server({ name: "esign-mcp", version: "0.1.0" }, { capabilities: { tools: {} } });
 

@@ -88,7 +88,7 @@ export function CreateForm() {
             </div>
             <div>
               <div style={{ fontSize: 17, fontWeight: 600, letterSpacing: -0.2 }}>Bekreftelses-lenke sendt</div>
-              <div style={{ fontSize: 13.5, color: "var(--fg-muted)" }}>Klikk lenken i e-posten — så går invitasjonene ut til signantene.</div>
+              <div style={{ fontSize: 13.5, color: "var(--fg-muted)" }}>Klikk lenken i e-posten for å se dokumentet og bekrefte — så går invitasjonene ut til signantene.</div>
             </div>
           </div>
 

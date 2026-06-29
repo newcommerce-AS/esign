@@ -2,6 +2,7 @@ import { test, expect, request } from "@playwright/test";
 import { db } from "../../lib/db/client";
 import { signingRequests } from "../../lib/db/schema";
 import { eq } from "drizzle-orm";
+import { confirmTokenFromUrl } from "./helpers";
 
 test("cron expire flips active → expired for past-due requests", async ({ baseURL }) => {
   const api = await request.newContext({ baseURL });
@@ -13,7 +14,7 @@ test("cron expire flips active → expired for past-due requests", async ({ base
     },
   });
   const body = await create.json();
-  await api.get(body.confirm_url);
+  await api.post(`/api/v1/confirm/${confirmTokenFromUrl(body.confirm_url)}`);
   await db.update(signingRequests).set({ expiresAt: new Date(Date.now() - 1000), status: "active" }).where(eq(signingRequests.id, body.id));
   const cron = await api.get("/api/internal/cron/expire", { headers: { authorization: `Bearer ${process.env.CRON_SECRET}` } });
   expect(cron.ok()).toBeTruthy();

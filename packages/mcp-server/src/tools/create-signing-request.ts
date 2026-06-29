@@ -2,7 +2,7 @@ import { api, type CreateInput } from "../api-client.js";
 
 export const createSigningRequestTool = {
   name: "create_signing_request",
-  description: "Create a new signing request. Returns confirm_url that the sender must click to release the invitation emails, and a sender_lookup_token for later status queries.",
+  description: "Create a new signing request. Returns confirm_url (where the sender reviews the document and clicks Bekreft), confirm_api_url + a confirm_token an agent can pass to confirm_signing_request to release the invitation emails programmatically, and a sender_lookup_token for later status queries. No invitations go out until the request is confirmed.",
   inputSchema: {
     type: "object",
     properties: {
